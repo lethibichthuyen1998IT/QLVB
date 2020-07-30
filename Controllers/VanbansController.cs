@@ -95,6 +95,12 @@ namespace QuanLy.Controllers
                 throw;
             }
         }
+		[HttpGet("{id}")]
+		 public Vanban Details(Vanban vb)
+        {
+             Vanban vban = db.Vanban.Find(vb.Idvb);
+                return vban;
+        }
         [HttpDelete("{id}")]
         public int Delete(string id)
         {
