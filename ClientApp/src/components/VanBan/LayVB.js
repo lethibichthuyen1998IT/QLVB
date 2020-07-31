@@ -43,7 +43,7 @@ class LayVB extends React.Component {
             ListPH: [],
             editModal: false,
             detailModal: false,
-              valueSearch: ''
+            valueSearch: ''
 
         };
         this.refresh = this.refresh.bind(this);
@@ -55,6 +55,7 @@ class LayVB extends React.Component {
         axios.get('/Vanbans')
             .then((res) => this.setState({
                 empList: res.data,
+                source: res.data,
                 showAlert: false
             }));
 
@@ -92,7 +93,7 @@ class LayVB extends React.Component {
             console.log(search);
             for (let item of sourceArray) {
                 console.log(item);
-                if (item.idvb.toLowerCase().indexOf(search.toLowerCase()) > -1 || item.tenph.toLowerCase().indexOf(search.toLowerCase()) > -1) {
+                if (item.sovb.toLowerCase().indexOf(search.toLowerCase()) > -1 || item.tenloai.toLowerCase().indexOf(search.toLowerCase()) > -1) {
                     newArray.push(item);
                 }
             }
@@ -117,7 +118,7 @@ class LayVB extends React.Component {
         const apiUrl = '/Vanbans/' + idvb.idvb;
         axios.delete(apiUrl, idvb.idvb)
             .then((res) => {
-                alert("Xóa thành công!");
+                alert("Thu hồi văn bản thành công!");
                 this.refresh();
                 this.setState({
                     showAlert: false
@@ -152,7 +153,7 @@ class LayVB extends React.Component {
     }
     updateVB() {
         let {idvb, idph, idloai, sovb, trichyeu, file, ngayky, ngaygoi, ngaynhan, nguoiky } = this.state.editData;
-        axios.put('/vanbans/' + this.state.editData.idvb,
+        axios.put('/Vanbans/' + this.state.editData.idvb,
             {idvb,idph, idloai, sovb, trichyeu, file, ngayky, ngaygoi, ngaynhan, nguoiky }).then((response) => {
                
                 this.setState({
@@ -172,7 +173,7 @@ class LayVB extends React.Component {
                 });
                 this.refresh();
                 console.log(idvb);
-                alert("Cập nhật thành công!");
+                alert("Cập nhật văn bản thành công!");
             });
 
     }
@@ -195,7 +196,7 @@ class LayVB extends React.Component {
                             <thead className="text-primary">
                                 <tr>
                                     <th>STT</th>
-                                    <th>Trích yếu</th>
+                                    <th>Số văn bản</th>
                                     <th>Loại VB</th>
                                     <th>Nơi PH</th>
                                     <th>Người ký</th>

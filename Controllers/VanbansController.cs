@@ -85,8 +85,8 @@ namespace QuanLy.Controllers
            
             try
             {
-                Vanban vban = db.Vanban.Find(vb.Idvb);
-                db.Entry(vban).State = EntityState.Modified;
+               
+                db.Entry(vb).State = EntityState.Modified;
                 db.SaveChanges();
                 return 1;
             }
@@ -95,12 +95,7 @@ namespace QuanLy.Controllers
                 throw;
             }
         }
-		[HttpGet("{id}")]
-		 public Vanban Details(Vanban vb)
-        {
-             Vanban vban = db.Vanban.Find(vb.Idvb);
-                return vban;
-        }
+		
         [HttpDelete("{id}")]
         public int Delete(string id)
         {
