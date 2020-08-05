@@ -285,8 +285,8 @@ class DanhMucNhanVien extends React.Component {
                                                          }} >
                                                              <option value='0' >--Chọn đơn vị--</option>
                                                              {
-                                                                 this.state.donvi.map((dv) =>
-                                                                 <option key={dv.iddonvi} value={dv.iddonvi}>{dv.tendonvi}</option>)
+                                                                         this.state.donvi.map((dv) =>
+                                                                             <option key={dv.iddonvi} value={dv.iddonvi}>{dv.tendonvi}</option>)
                                                              }
                                                          </Input>
                                                              </FormGroup>

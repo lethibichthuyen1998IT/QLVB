@@ -3,7 +3,6 @@ import moment from 'moment';
 import { RouteComponentProps } from 'react-router';
 import { Link, NavLink } from 'react-router-dom';
 import axios from 'axios';
-import NotificationAlert from "react-notification-alert";
 import SweetAlert from 'sweetalert-react';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import Search from 'components/Search';
@@ -25,18 +24,16 @@ import {
     FormGroup,
     Label,
     Input,
-    Toast
+    Toast,
+    Form
     ,
 } from "reactstrap";
 
-
 export class Lichlamviecs extends React.Component {
     state = {
-        lichlamviecs: [],
-     
+        lichlamviecs: [],  
         source: [],
-        newData: {
-           
+        newData: {         
             noidungcv: '',
             diadiem: '',
             ngaybd: '',
@@ -62,6 +59,11 @@ export class Lichlamviecs extends React.Component {
             giokt: '',
             thanhphankhac: ''
         },
+        newtp: {
+            idnv: 0
+        },
+        modalAdd: false,
+        nhanvien: [],
         newModal: false,
         editModal: false,
         showAlert: false,
@@ -70,7 +72,11 @@ export class Lichlamviecs extends React.Component {
     }
 
     componentWillMount() {
-
+        axios.get('/nhanviens')
+            .then((res) =>
+                this.setState({
+                    nhanvien: res.data
+                }));
         this.refesh();
        
     }
@@ -82,6 +88,12 @@ export class Lichlamviecs extends React.Component {
             })
            
         });
+    }
+
+    toggleNewthanhphanModal() {
+        this.setState({
+            modalAdd: !this.state.modalAdd
+        })
     }
 
     toggleNewModal() {
@@ -146,12 +158,9 @@ export class Lichlamviecs extends React.Component {
                 detailData: { idlich, noidungcv, diadiem, ngaybd, giobd, giokt, thanhphankhac },
                 detailModal: !this.state.detailModal
             })
-
         });
-        console.log(idlich);
-      
+        console.log(idlich);    
     }
-
 
     update() {
         let { idlich,noidungcv, diadiem, ngaybd, giobd, giokt, thanhphankhac } = this.state.editData;
@@ -175,7 +184,6 @@ export class Lichlamviecs extends React.Component {
             alert("Cập nhật thành công!");
         
             });
-
     }
 
     deleteLich = (idlich) => {
@@ -189,7 +197,25 @@ export class Lichlamviecs extends React.Component {
                     });
                 });
         }
-       
+
+
+    addthanhphan() {
+
+        axios.post('https://localhost:44331/api/Thanhphanthamdus', this.state.newtp).then((response) => {
+            console.log(response.data);
+           
+            this.setState({
+                
+                newModal: false,
+                newtp: {
+                    idnv: 0
+                }
+            });
+            alert("Lưu thành công!");
+        });
+
+    }
+
     handleShowAlert = (id) => {
         this.setState({
         showAlert: true
@@ -233,7 +259,7 @@ export class Lichlamviecs extends React.Component {
                     <td>
                         <Button color="warning" size="sm" className="mr-2" onClick={this.detail.bind(this, emp.idlich, emp.noidungcv, emp.diadiem, emp.ngaybd, emp.giobd, emp.giokt, emp.thanhphankhac)} ><i className="fas fa-info-circle"></i></Button>
                         <Modal isOpen={this.state.detailModal} toggle={this.toggleDetailModal.bind(this)}>
-                            <ModalHeader toggle={this.toggleDetailModal.bind(this)}> Thông tin chi tiết</ModalHeader>
+                            <ModalHeader toggle={this.toggleDetailModal.bind(this)}> <i className="fas fa-info-circle"></i> Thông tin chi tiết</ModalHeader>
                             <ModalBody>
 
                                 <FormGroup>
@@ -273,63 +299,116 @@ export class Lichlamviecs extends React.Component {
                         </Modal>
                         <Button color="success" size="sm" className="mr-2" onClick={this.edit.bind(this, emp.idlich, emp.noidungcv, emp.diadiem, emp.ngaybd, emp.giobd, emp.giokt, emp.thanhphankhac)}><i className="fas fa-edit"></i></Button> 
                          <Modal isOpen={this.state.editModal} toggle={this.toggleEditModal.bind(this)}>
-                            <ModalHeader toggle={this.toggleEditModal.bind(this)}>Edit</ModalHeader>
+                            <ModalHeader toggle={this.toggleEditModal.bind(this)}>Chỉnh sửa lịch làm việc</ModalHeader>
                             <ModalBody>
-                                <FormGroup>
-                                    <Label for="noidungcv"> Nội dung công viêc:</Label>
-                                    <Input id="noidungcv" type="textarea" value={this.state.editData.noidungcv} onChange={(e) => {
-                                        let { editData } = this.state;
-                                        editData.noidungcv = e.target.value;
-                                        this.setState({ editData });
-                                    }} />
-                                </FormGroup>
+                                <Form>
+                                    <Row>
+                                        <Col md="12">
+                                            <FormGroup>
+                                                <Label for="ngaybd">Ngày bắt đầu</Label>
 
-                                <FormGroup>
-                                    <Label for="diadiem">Địa điểm:</Label>
+                                                <Input id="ngaybd" type="datetime-local" value={this.state.editData.ngaybd} onChange={(e) => {
+                                                    let { editData } = this.state;
+                                                    editData.ngaybd = e.target.value;
+                                                    this.setState({ editData });
+                                                }} />
+                                            </FormGroup>
+                                        </Col>
+                                    </Row>
 
-                                    <Input id="diadiem" value={this.state.editData.diadiem} onChange={(e) => {
-                                        let { editData } = this.state;
-                                        editData.diadiem = e.target.value;
-                                        this.setState({ editData });                                    
-                                    }} />
-                                </FormGroup>
-                                <FormGroup>
-                                    <Label for="ngaybd">Ngày bắt đầu</Label>
+                                    <Row>
+                                        <Col className="pr-1" md="6">
+                                            <FormGroup>
+                                                <Label for="giobd">Giờ bắt đầu</Label>
+                                                <Input id="giobd" type="time" value={this.state.editData.giobd} onChange={(e) => {
+                                                    let { editData } = this.state;
+                                                    editData.giobd = e.target.value;
+                                                    this.setState({ editData });
+                                                }} />
+                                            </FormGroup>
+                                        </Col>
+                                        <Col className="pr-1" md="6">
+                                            <FormGroup>
+                                                <Label for="giokt">Giờ kết thúc</Label>
+                                                <Input id="giokt" type="time" value={this.state.editData.giokt} onChange={(e) => {
+                                                    let { editData } = this.state;
+                                                    editData.giokt = e.target.value;
+                                                    this.setState({ editData });
+                                                }} />
+                                            </FormGroup>
+                                        </Col>
+                                    </Row>
+                                    <Row>
+                                        <Col md="12">
+                                        <FormGroup>
+                                            <Label for="noidungcv"> Nội dung công việc</Label>
+                                            <Input id="noidungcv" type="textarea" value={this.state.editData.noidungcv} onChange={(e) => {
+                                                let { editData } = this.state;
+                                                editData.noidungcv = e.target.value;
+                                                this.setState({ editData });
+                                            }} />
+                                            </FormGroup>
+                                        </Col>
+                                    </Row>
 
-                                    <Input id="ngaybd" type="datetime-local" value={this.state.editData.ngaybd} onChange={(e) => {
-                                        let { editData } = this.state;
-                                        editData.ngaybd = e.target.value;
-                                        this.setState({ editData });
-                                    }} />
-                                </FormGroup>
-                                <FormGroup>
-                                    <Label for="giobd">Giờ bắt đầu</Label>
-                                    <Input id="giobd" type="time" value={this.state.editData.giobd} onChange={(e) => {
-                                        let { editData } = this.state;
-                                        editData.giobd = e.target.value;
-                                        this.setState({ editData });
-                                    }} />
-                                </FormGroup>
-                                <FormGroup>
-                                    <Label for="giokt">Giờ kết thúc</Label>
-                                    <Input id="giokt" type="time" value={this.state.editData.giokt} onChange={(e) => {
-                                        let { editData } = this.state;
-                                        editData.giokt = e.target.value;
-                                        this.setState({ editData });
-                                    }} />
-                                </FormGroup>
-                                <FormGroup>
-                                    <Label for="thanhphankhac">Thành phần khác: </Label>
-                                    <Input id="thanhphankhac" value={this.state.editData.thanhphankhac} onChange={(e) => {
-                                        let { editData } = this.state;
-                                        editData.thanhphankhac = e.target.value;
-                                        this.setState({ editData });
-                                    }} />
-                                </FormGroup>
+                                    <Row>
+                                        <Col md="12">
+                                        <FormGroup>
+                                            <Label for="diadiem">Địa điểm</Label>
+
+                                            <Input id="diadiem" value={this.state.editData.diadiem} onChange={(e) => {
+                                                let { editData } = this.state;
+                                                editData.diadiem = e.target.value;
+                                                this.setState({ editData });
+                                            }} />
+                                            </FormGroup>
+                                        </Col>
+                                    </Row>
+                                   
+                                    <Row md="12">
+                                        <Button color="primary" onClick={this.toggleNewthanhphanModal.bind(this)}>{(this.state.modalAdd) ? 'Đóng' : 'Thêm thành phần'}</Button>
+                                        <Form className="form-inline">
+                                            <Col md="5">
+                                                <FormGroup>
+                                                    <Input type="select" id="idnv" value={this.state.newtp.idnv} onChange={(e) => {
+                                                        let { newtp } = this.state;
+                                                        newtp.idnv = e.target.value;
+                                                        this.setState({ newtp });
+                                                    }}>
+                                                        <option value='' >--Chọn thành phần--</option>
+                                                        {
+                                                            this.state.nhanvien.map((nv) =>
+                                                                <option key={nv.idnv} value={nv.idnv}>{nv.hoten}</option>)
+                                                        }
+                                                    </Input>
+                                                </FormGroup>
+                                            </Col>
+                                            <Col md="7">
+                                                <Button color="primary" onClick={this.addthanhphan.bind(this)} >Thực hiện lưu</Button>{' '}
+                                                <Button color="danger" >Hủy bỏ</Button>
+                                            </Col>
+                                        </Form>
+
+                                    </Row>
+                                    <Row>
+                                        <Col md="12">
+                                        <FormGroup>
+                                            <Label for="thanhphankhac">Thành phần khác: </Label>
+                                            <Input id="thanhphankhac" value={this.state.editData.thanhphankhac} onChange={(e) => {
+                                                let { editData } = this.state;
+                                                editData.thanhphankhac = e.target.value;
+                                                this.setState({ editData });
+                                            }} />
+                                            </FormGroup>
+                                        </Col>
+                                    </Row>
+                                </Form>
+                               
+                               
                             </ModalBody>
                             <ModalFooter>
-                                <Button color="primary" onClick={this.update.bind(this) }>Update</Button>
-                                <Button color="secondary" onClick={this.toggleEditModal.bind(this)}>Cancel</Button>
+                                <Button color="primary" onClick={this.update.bind(this) }>Cập nhật</Button>
+                                <Button color="secondary" onClick={this.toggleEditModal.bind(this)}>Hủy</Button>
                             </ModalFooter>
                         </Modal>
 
