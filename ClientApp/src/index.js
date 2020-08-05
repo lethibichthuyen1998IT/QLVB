@@ -8,6 +8,7 @@ import "assets/scss/paper-dashboard.scss?v=1.2.0";
 import "assets/demo/demo.css";
 import "perfect-scrollbar/css/perfect-scrollbar.css";
 import 'sweetalert/dist/sweetalert.css';
+import '@fortawesome/fontawesome-free/css/all.min.css';
 
 import AdminLayout from "layouts/Admin.js";
 

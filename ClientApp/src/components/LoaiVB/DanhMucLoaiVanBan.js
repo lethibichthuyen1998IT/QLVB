@@ -64,11 +64,7 @@ class DanhMucLoaiVanBan extends React.Component {
                 source: res.data,
                 showAlert: false
             })
-
             );
-
-
-
     }
 
     //add
@@ -89,7 +85,6 @@ class DanhMucLoaiVanBan extends React.Component {
                     newloai: {
                         Tenloai: ''
                     },
-
                     modalAdd: false
                 });
                 this._refresh();
@@ -98,7 +93,6 @@ class DanhMucLoaiVanBan extends React.Component {
                 console.log(error.response);
                 alert(error);
             });
-
     }
 
     //refresh
@@ -128,8 +122,6 @@ class DanhMucLoaiVanBan extends React.Component {
         this.setState({
             showAlert: true
         });
-
-
     }
 
     //edit
@@ -158,25 +150,18 @@ class DanhMucLoaiVanBan extends React.Component {
                 editData: {
                     idloai: 0,
                     tenloai: ''
-
                 },
-
             });
             this._refresh();
-
         });
-
     }
     //search
     handleSearch = (search) => {
-
         let sourceArray = this.state.source;
-
         let newArray = [];
         if (search.length <= 0) {
             newArray = sourceArray;
         } else {
-
             console.log(search);
             for (let item of sourceArray) {
                 console.log(item);

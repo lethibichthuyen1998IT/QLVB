@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QuanLy.Models;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace QuanLy.Controllers
 {
@@ -76,29 +73,15 @@ namespace QuanLy.Controllers
             }
         }
 
-        //[HttpGet("{id}")]
-
-        //public Donvi Details(int id)
-        //{
-        //    return tb.Donvi.Find(id);
-        //}
-
         [HttpPut("{id}")]
 
-        public int Edit(Lichlamviec llv)
+        public int Edit(string id, Lichlamviec lichlamviec)
         {
-          
-            Lichlamviec lichlv = tb.Lichlamviec.Find(llv.Idlich);
-            lichlv.Noidungcv = llv.Noidungcv;
-            lichlv.Diadiem = llv.Diadiem;
-            lichlv.Ngaybd = llv.Ngaybd;
-            lichlv.Giobd = llv.Giobd;
-            lichlv.Giokt= llv.Giokt;
-            lichlv.Thanhphankhac = llv.Thanhphankhac;
-
+           
             try
             {
-                tb.Entry(lichlv).State = EntityState.Modified;
+                lichlamviec.Idlich = id;
+                tb.Entry(lichlamviec).State = EntityState.Modified;
                 tb.SaveChanges();
                 return 1;
             }
@@ -107,6 +90,22 @@ namespace QuanLy.Controllers
                 throw;
             }
         }
+
+        [HttpGet("{id}")]
+
+        public int GetLichlamviec(string id)
+        {
+           
+
+                Lichlamviec llv = tb.Lichlamviec.Find(id);
+            if (llv == null)
+            {
+                return 0;
+            }
+
+            return 1;
+        }
+
 
         [HttpDelete("{id}")]
 
@@ -135,4 +134,4 @@ namespace QuanLy.Controllers
         }
     }
 }
-    
+
