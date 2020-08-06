@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -70,7 +72,7 @@ namespace QuanLy.Controllers
                 return autoID;
             }
         [HttpPost]
-        public int ThemVB([FromBody]Vanban vb)
+        public int ThemVB([FromBody] Vanban vb)
         {
             vb.Idvb = auto_id();
             db.Vanban.Add(vb);
@@ -78,7 +80,8 @@ namespace QuanLy.Controllers
             return 1;
         }
 
-        [HttpPut("{id}")]
+
+[HttpPut("{id}")]
         public int SuaVB(Vanban vb)
         {
           
@@ -95,7 +98,8 @@ namespace QuanLy.Controllers
                 throw;
             }
         }
-		
+       
+
         [HttpDelete("{id}")]
         public int Delete(string id)
         {

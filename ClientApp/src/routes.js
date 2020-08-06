@@ -17,13 +17,7 @@
 
 */
 import Dashboard from "views/Dashboard.js";
-import UpgradeToPro from "views/Upgrade.js";
-import Notifications from "views/Notifications.js";
-import Icons from "views/Icons.js";
 
-
-
-import UserPage from "views/User.js";
 import DanhMucNhanVien from "components/NhanVien/DanhMucNhanVien";
 import DanhMucDonVi from "components/DonVi/DanhMucDonVi";
 import DanhMucDoQuanTrong from "components/DoQuanTrong/DanhMucDoQuanTrong";
@@ -128,28 +122,7 @@ var routes = [
         layout: "/admin",
     },
 
-    {
-        path: "/icons",
-        name: "Icons",
-        icon: "nc-icon nc-diamond",
-        component: Icons,
-        layout: "/admin",
-    },
-
-    {
-        path: "/notifications",
-        name: "Notifications",
-        icon: "nc-icon nc-bell-55",
-        component: Notifications,
-        layout: "/admin",
-    },
-    {
-        path: "/user-page",
-        name: "User Profile",
-        icon: "nc-icon nc-single-02",
-        component: UserPage,
-        layout: "/admin",
-    },
+   
 
    
 

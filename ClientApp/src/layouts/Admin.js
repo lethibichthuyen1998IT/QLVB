@@ -25,9 +25,6 @@ import DemoNavbar from "components/Navbars/DemoNavbar.js";
 import Footer from "components/Footer/Footer.js";
 import Sidebar from "components/Sidebar/Sidebar.js";
 import FixedPlugin from "components/FixedPlugin/FixedPlugin.js";
-import FetchNhanVien from "components/NhanVien/FetchNhanVien";
-import LayVB from "components/VanBan/LayVB";
-import AddCongViec from "components/CongViec/AddCongViec";
 import routes from "routes.js";
 
 var ps;
@@ -88,8 +85,7 @@ class Dashboard extends React.Component {
             })}
                     
                     
-                    <Route path="/fetch" component={FetchNhanVien} />
-                    <Route path="/fetch" component={LayVB} />
+                   
                    
                     
                  

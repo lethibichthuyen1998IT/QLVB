@@ -3,6 +3,7 @@ import moment from 'moment';
 import axios from 'axios';
 import SweetAlert from 'sweetalert-react';
 import Search from 'components/Search';
+
 import {
     Card,
     CardHeader,
@@ -38,6 +39,19 @@ class LayVB extends React.Component {
                 ngaynhan: '',
                 nguoiky: ''
             },
+            detailsData: {
+                idvb: '',
+                tenph: '',
+                tenloai: 0,
+                sovb: '',
+                trichyeu: '',
+                file: '',
+                ngayky: '',
+                ngaygoi: '',
+                ngaynhan: '',
+                nguoiky: ''
+            },
+
 
             ListLoai: [],
             ListPH: [],
@@ -46,6 +60,7 @@ class LayVB extends React.Component {
             valueSearch: ''
 
         };
+     
         this.refresh = this.refresh.bind(this);
         this.handleShowAlert = this.handleShowAlert.bind(this);
         this.deleteVB = this.deleteVB.bind(this);
@@ -135,12 +150,19 @@ class LayVB extends React.Component {
     }
     toggleDetailModal() {
         this.setState({
+           
             detailModal: !this.state.detailModal
 
         });
     }
 
-      
+    details(idvb, tenph, tenloai, sovb, trichyeu, file, ngayky, ngaygoi, ngaynhan, nguoiky) {
+        this.setState({
+            detailsData: { idvb, tenph, tenloai, sovb, trichyeu, file, ngayky, ngaygoi, ngaynhan, nguoiky },
+                    detailModal: !this.state.detailModal
+        });
+        console.log(idvb);
+    }
 
 
     edit(idvb, idph, idloai, sovb, trichyeu, file, ngayky, ngaygoi, ngaynhan, nguoiky) {
@@ -212,7 +234,7 @@ class LayVB extends React.Component {
                                         return (
                                             <tr key={emp.idvb}>
                                                 <td>{index+1}</td>
-                                                <td>{emp.trichyeu}</td>
+                                                <td>{emp.sovb}</td>
                                                
                                                 <td>{emp.tenloai}</td>
                                                 <td>{emp.tenph}</td>
@@ -221,32 +243,32 @@ class LayVB extends React.Component {
                                                
 
                                                 <td width="320px" >
-                                                    <Button className="btn btn-info" onClick={this.toggleDetailModal.bind(this)}>Xem chi tiết  </Button>&nbsp;
+                                                    <Button className="btn btn-info" onClick={this.details.bind(this, emp.idvb, emp.tenph, emp.tenloai, emp.sovb, emp.trichyeu, emp.file, emp.ngayky, emp.ngaygoi, emp.ngaynhan, emp.nguoiky)}>Xem chi tiết  </Button>&nbsp;
 
                                                     <Modal isOpen={this.state.detailModal} toggle={this.toggleDetailModal.bind(this)}>
                                                         <ModalHeader toggle={this.toggleDetailModal.bind(this)}>Chi tiết văn bản</ModalHeader>
                                                         <ModalBody>
                                                             <Form color="blue">
-                                                                <Label for="sovb">Số văn bản: {emp.sovb} </Label>
-                                                                <br/>
-                                                                <Label for="idph">Nơi phát hành: {emp.tenph} </Label>
+                                                                <Label for="sovb">Số văn bản: {this.state.detailsData.sovb} </Label>
                                                                 <br />
-                                                                <Label for="idloai">Loại văn bản: {emp.tenloai} </Label>
+                                                                <Label for="idph">Nơi phát hành:  {this.state.detailsData.tenph} </Label>
                                                                 <br />
-                                                                <Label for="trichyeu">Trích yếu: {emp.trichyeu} </Label> 
+                                                                <Label for="idloai">Loại văn bản:  {this.state.detailsData.tenloai} </Label>
+                                                                <br />
+                                                                <Label for="trichyeu">Trích yếu:  {this.state.detailsData.trichyeu} </Label> 
                                                                 <br />
 
-                                                                <Label for="file">File: </Label> <button className="btn btn-default" onClick="">Xem file</button>
+                                                                <Label for="file">Xem file: <a href={"/UploadedFiles/" + (this.state.detailsData.file).split('\\').pop()} download> Tải xuống </a> </Label> 
                                                                 <br />
-                                                                <Label for="ngayky">Ngày ký: {moment(emp.ngayky).format("DD-MM-YYYY")}</Label> 
+                                                                <Label for="ngayky">Ngày ký: {moment(this.state.detailsData.ngayky).format("DD-MM-YYYY")}</Label> 
                                                                 <br />
-                                                                <Label for="ngaygoi">Ngày gởi: {moment(emp.ngaygoi).format("DD-MM-YYYY")}</Label> 
+                                                                <Label for="ngaygoi">Ngày gởi: {moment(this.state.detailsData.ngaygoi).format("DD-MM-YYYY")}</Label> 
                                                                 <br />
                                                                    
-                                                                <Label for="ngaynhan">Ngày nhận: {moment(emp.ngaynhan).format("DD-MM-YYYY")} </Label> 
+                                                                <Label for="ngaynhan">Ngày nhận: {moment(this.state.detailsData.ngaynhan).format("DD-MM-YYYY")} </Label> 
 
                                                                 <br />
-                                                                <Label for="nguoiky">Người ký: {emp.nguoiky} </Label>
+                                                                <Label for="nguoiky">Người ký: {this.state.detailsData.nguoiky} </Label>
 
                                                             </Form>
 

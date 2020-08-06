@@ -11,6 +11,7 @@ import {
     Button,
     Input, Label, Form, FormGroup
 } from "reactstrap";
+import { Document, Page } from 'react-pdf';
 class AddVB extends React.Component {
     constructor(props) {
         super(props)
@@ -21,7 +22,7 @@ class AddVB extends React.Component {
                 idloai: '',
                 sovb: '',
                 trichyeu: '',
-                file: '',
+               file:'',
                 ngayky: '',
                 ngaygoi: '',
                 ngaynhan: '',
@@ -29,6 +30,10 @@ class AddVB extends React.Component {
         },
              ListLoai: [],
             ListPH: [],
+            selectedFile: '',
+            progress: 0,
+            status: ''
+          
             
             }
   
@@ -60,18 +65,18 @@ class AddVB extends React.Component {
   
 
   
-    AddVB() {
+    AddVB() {    
         axios.post('/Vanbans', {
             IDVB: this.state.newvb.idvb,
             IDPH: this.state.newvb.idph,
             IDLOAI: this.state.newvb.idloai,
             SOVB: this.state.newvb.sovb,
             TRICHYEU: this.state.newvb.trichyeu,
-            FILE: this.state.newvb.file,
+            FILE: this.state.newvb.file, 
             NGAYKY: this.state.newvb.ngayky,
             NGAYGOI: this.state.newvb.ngaygoi,
             NGAYNHAN: this.state.newvb.ngaynhan,
-            NGUOIKY: this.state.newvb.nguoiky
+            NGUOIKY: this.state.newvb.nguoiky,
         }).then((response) => {
             alert("Lưu thành công!");
             this.setState({
@@ -89,7 +94,9 @@ class AddVB extends React.Component {
                 },
                 ListLoai: [],
                 ListPH: [],
-                
+                //selectedFile: '',
+                //progress: 0,
+                //status: ''
             });
            
 
@@ -104,14 +111,57 @@ class AddVB extends React.Component {
      handleChange = (e) =>{
         this.setState({ [e.target.name]: e.target.value });
     }
+  
+   
+    selectFileHandler = (event) => {
+        
+        const fileTypes = ['application/pdf'];
+        let file = event.target.files;
+        console.log(`File ${file}`);
+      
+        let errMessage = [];
+      
+        if (fileTypes.every(extension => file[0].type != extension)) {
+            errMessage.push(`The file ${file.type} extension is not supported`);
+        } else {
+            this.setState({
+                selectedFile: file[0],
+               
+                newvb: { file: event.target.value }
+               
+            });
+        }
+    };
+
+    uploadHandler = (event) => {
+      
+            const formData = new FormData();
+            formData.append('PDF', this.state.selectedFile);
+            axios.post('/uploadfile', formData, {
+                onUploadProgress: progressEvent => {
+                    this.setState({
+                        
+                        progress: (progressEvent.loaded / progressEvent.total * 100)
+                    })
+                }
+            })
+                .then((response) => {
+                    this.setState({ status: `Tải lên thành công` });
+                })
+                .catch((error) => {
+                    this.setState({ status: `Tải lên thất bại` });
+                })
+        }
+        
+    
 
      handleCancel(e) {
         e.preventDefault();
         this.props.history.push('index');
     }  
 
-  
-  
+    
+
     render() {
         return (
             <div className="content">
@@ -225,14 +275,20 @@ class AddVB extends React.Component {
                             <td>
                         <Label for="file">File đính kèm:</Label>
 
-                                <Input required  id="file" type="file" value={this.state.newvb.file} onChange={(e) => {
-                            let { newvb } = this.state;
-                            newvb.file = e.target.value;
-                            this.setState({ newvb });
-                                }} />
+                                <Input required id="file" type="file" value={this.state.newvb.file} onChange={this.selectFileHandler} /> 
+                                <br/>
+                                <div><button type="button" onClick={this.uploadHandler}>Tải lên </button></div>
+                                <div>{this.state.progress}</div>
+
+                                <div>{this.state.status}</div>  
+                 
                             </td>
+
+                          
+                                
+                                
                         </tr>
-                        <hr />
+                      
                         <tr>
                             <td>Gửi đến:
                              

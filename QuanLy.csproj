@@ -38,6 +38,7 @@
   <ItemGroup>
     <Folder Include="ClientApp\src\components\VaiTro\" />
     <Folder Include="ClientApp\src\views\" />
+    <Folder Include="UploadedFiles\" />
   </ItemGroup>
 
   <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">
