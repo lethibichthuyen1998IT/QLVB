@@ -8,8 +8,12 @@ import "assets/scss/paper-dashboard.scss?v=1.2.0";
 import "assets/demo/demo.css";
 import "perfect-scrollbar/css/perfect-scrollbar.css";
 import 'sweetalert/dist/sweetalert.css';
-import '@fortawesome/fontawesome-free/css/all.min.css';
 
+import '@progress/kendo-theme-default/dist/all.css';
+
+import '@progress/kendo-react-dropdowns';
+import 'components/Lichlamviec/style.css';
+import 'react-widgets';
 import AdminLayout from "layouts/Admin.js";
 
 

@@ -1,11 +1,17 @@
-﻿import React, { Component } from 'react';
+﻿import React, { Component, useState } from 'react';
 import moment from 'moment';
 import { RouteComponentProps } from 'react-router';
 import { Link, NavLink } from 'react-router-dom';
 import axios from 'axios';
 import SweetAlert from 'sweetalert-react';
-import '@fortawesome/fontawesome-free/css/all.min.css';
+import Select from '@material-ui/core/Select';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+//import MultiSelect from "react-multi-select-component";
+import ReactDOM from 'react-dom';
+import { MultiSelect } from '@progress/kendo-react-dropdowns';
+//import { Multiselect } from 'react-widgets';
 import Search from 'components/Search';
+
 
 // reactstrap components
 import {
@@ -26,8 +32,12 @@ import {
     Input,
     Toast,
     Form
-    ,
 } from "reactstrap";
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { faTimes } from '@fortawesome/free-solid-svg-icons';
+library.add(faTimes);
+
+
 
 export class Lichlamviecs extends React.Component {
     state = {
@@ -60,25 +70,31 @@ export class Lichlamviecs extends React.Component {
             thanhphankhac: ''
         },
         newtp: {
-            idnv: 0
+            idnv: 0,
+            idlich: ''
         },
         modalAdd: false,
-        nhanvien: [],
+        value: [],
         newModal: false,
         editModal: false,
         showAlert: false,
         valueSearch: '',
         detailModal: false,
+
+        isOpen: false,
+
+        
     }
 
     componentWillMount() {
+      
         axios.get('/nhanviens')
             .then((res) =>
                 this.setState({
                     nhanvien: res.data
                 }));
         this.refesh();
-       
+      
     }
     refesh() {
         axios.get('/Lichlamviecs').then((response) => {
@@ -207,9 +223,8 @@ export class Lichlamviecs extends React.Component {
             this.setState({
                 
                 newModal: false,
-                newtp: {
-                    idnv: 0
-                }
+              
+                
             });
             alert("Lưu thành công!");
         });
@@ -245,7 +260,89 @@ export class Lichlamviecs extends React.Component {
         });
     }
 
+    handleOpen = (idnv) => {
+        this.setState(prevState => ({
+            isOpen: !prevState.isOpen,
+            newtp:idnv
+        }));
+    }
+
+    handleSelect = (newtp) => {
+        if (!this.state.isOpen) {
+            document.addEventListener('click', this.handleOutsideClick, false);
+        } else {
+            document.removeEventListener('click', this.handleOutsideClick, false);
+        }
+
+        this.setState(prevState => ({
+            isOpen: !prevState.isOpen,
+            newtp: newtp
+        }));
+    };
+
+    handleOutsideClick = () => {
+        this.handleSelect();
+    };
+
+    //handleChange(event) {
+    //    this.setState({
+    //        value: event.option
+    //    });
+    //}
+    //handleChange = (event) => {
+    //    this.setState({
+    //        value: event.target.value
+    //    });
+    //}
+    //handleChange = (event) => {
+    //    var options = event.target.options;
+    //        var value = [];
+    //        for (var i = 0, l = options.length; i < l; i++) {
+    //            if (options[i].selected) {
+    //                value.push(options[i].value);
+    //            }
+    //        }
+    //        this.setState({ value: value });
+    //}
+
+    //handleChange(event) {
+    //    //this.setState({value: event.option});
+    //    this.setState({ value: Array.from(event.target.selectedOptions, (item) => item.value) });
+    //}
+
+    handleChangeMultiple = (event) => {
+        const { options } = event.target;
+        const value = [];
+        for (let i = 0, l = options.length; i < l; i += 1) {
+            if (options[i].selected) {
+                value.push(options[i].value);
+            }
+        }
+        this.setState({ value: value });
+    };
+    //handleChange (e) {
+    //    var options = e.target.options;
+    //    var value = [];
+    //    for (var i = 0, l = options.length; i < l; i++) {
+    //        if (options[i].selected) {
+    //            value.push(options[i].value);
+    //        }
+    //    }
+    //    this.setState({ value: value });
+    //}
+
+    handleSubmit() {
+        alert("you have choose :" + this.state.value);
+
+    }
+
     render() {
+        //const [selected, setSelected] = useState([]);
+        //let { nhanvien } = this.nhanvien.data;
+        // const { nhanvien } = this.state.nhanvien.map((vt) => ({ nhanvien: vt.idnv }))handle;
+        const nhanvien = [];
+       // const sizes = ["X-Small", "Small", "Medium", "Large", "X-Large", "2X-Large"];
+       // const { idnv, hoten } = this.state.newtp; 
         let lichlamviecs = this.state.lichlamviecs.map((emp, index) => {
             return (
                 <tr key={emp.idlich}>
@@ -301,6 +398,28 @@ export class Lichlamviecs extends React.Component {
                          <Modal isOpen={this.state.editModal} toggle={this.toggleEditModal.bind(this)}>
                             <ModalHeader toggle={this.toggleEditModal.bind(this)}>Chỉnh sửa lịch làm việc</ModalHeader>
                             <ModalBody>
+                                <div>
+                                    <div className="example-config">
+                                        Selected Values: {JSON.stringify(this.state.value)}
+                                    </div>
+
+                                    <Select
+                                        multiple
+                                        native
+                                        value={this.state.value}
+                                        onChange={this.handleChangeMultiple}
+                                        inputProps={{
+                                            id: 'select-multiple-native',
+                                        }}
+                                    >
+                                        {this.state.nhanvien.map((name) => (
+                                            <option key={name.idnv} value={name.idnv}>
+                                                {name.hoten}
+                                            </option>
+                                        ))}
+                                    </Select>
+
+                                </div>
                                 <Form>
                                     <Row>
                                         <Col md="12">
@@ -350,7 +469,7 @@ export class Lichlamviecs extends React.Component {
                                             </FormGroup>
                                         </Col>
                                     </Row>
-
+                                   
                                     <Row>
                                         <Col md="12">
                                         <FormGroup>
@@ -365,31 +484,11 @@ export class Lichlamviecs extends React.Component {
                                         </Col>
                                     </Row>
                                    
-                                    <Row md="12">
-                                        <Button color="primary" onClick={this.toggleNewthanhphanModal.bind(this)}>{(this.state.modalAdd) ? 'Đóng' : 'Thêm thành phần'}</Button>
-                                        <Form className="form-inline">
-                                            <Col md="5">
-                                                <FormGroup>
-                                                    <Input type="select" id="idnv" value={this.state.newtp.idnv} onChange={(e) => {
-                                                        let { newtp } = this.state;
-                                                        newtp.idnv = e.target.value;
-                                                        this.setState({ newtp });
-                                                    }}>
-                                                        <option value='' >--Chọn thành phần--</option>
-                                                        {
-                                                            this.state.nhanvien.map((nv) =>
-                                                                <option key={nv.idnv} value={nv.idnv}>{nv.hoten}</option>)
-                                                        }
-                                                    </Input>
-                                                </FormGroup>
-                                            </Col>
-                                            <Col md="7">
-                                                <Button color="primary" onClick={this.addthanhphan.bind(this)} >Thực hiện lưu</Button>{' '}
-                                                <Button color="danger" >Hủy bỏ</Button>
-                                            </Col>
-                                        </Form>
-
-                                    </Row>
+                                  
+                                       
+                                   
+                                        
+                                   
                                     <Row>
                                         <Col md="12">
                                         <FormGroup>
@@ -407,6 +506,7 @@ export class Lichlamviecs extends React.Component {
                                
                             </ModalBody>
                             <ModalFooter>
+                                  
                                 <Button color="primary" onClick={this.update.bind(this) }>Cập nhật</Button>
                                 <Button color="secondary" onClick={this.toggleEditModal.bind(this)}>Hủy</Button>
                             </ModalFooter>
@@ -520,7 +620,7 @@ export class Lichlamviecs extends React.Component {
                                             <th></th>
                                             <th>STT</th>
                                             <th>Ngày bắt đầu</th>
-                                            <th>Giờ</th>
+                                            <th>Thời gian</th>
                                             <th>Nội dung</th>
                                             <th>Thành phần </th>
                                             <th>Địa điểm</th>  
