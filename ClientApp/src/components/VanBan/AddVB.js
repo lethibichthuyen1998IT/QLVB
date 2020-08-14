@@ -1,5 +1,8 @@
 ﻿import React from 'react';
 import axios from 'axios';
+import DualListBox from 'react-dual-listbox';
+import 'react-dual-listbox/lib/react-dual-listbox.css';
+
 import {
     Card,
     CardHeader,
@@ -11,11 +14,15 @@ import {
     Button,
     Input, Label, Form, FormGroup
 } from "reactstrap";
-import { Document, Page } from 'react-pdf';
+
+
+
+
 class AddVB extends React.Component {
     constructor(props) {
         super(props)
         this.state = {
+
             newvb: {
                 idvb: '',
                 idph: '',
@@ -27,28 +34,48 @@ class AddVB extends React.Component {
                 ngaygoi: '',
                 ngaynhan: '',
                 nguoiky: ''
-        },
+            },
+
              ListLoai: [],
             ListPH: [],
+            ListNV: [],
+            ListDV: [],
             selectedFile: '',
             progress: 0,
-            status: ''
-          
+            status: '',
+            planet: 'moinguoi',
+            selected: []
             
             }
   
-
+        this.onChange = this.onChange.bind(this);
+        this.onPlanetChange = this.onPlanetChange.bind(this);
         this.handleCancel = this.handleCancel.bind(this);  
      
       
     }
-    componentDidMount() {
-        axios.get('/Vanbans')
-            .then((res) => this.setState({
-                empList: res.data,
-                showAlert: false
-            }));
+      
 
+
+
+
+
+    
+
+    //load du lieu
+    componentDidMount() {
+
+        axios.get('/donvis')
+            .then((res) =>
+                this.setState({
+                    ListDV: res.data
+                }));
+
+        axios.get('/nhanviens')
+            .then((res) =>
+                this.setState({
+                    ListNV: res.data
+                }));
         axios.get('/Noiphathanhs')
             .then((res) =>
                 this.setState({
@@ -61,10 +88,13 @@ class AddVB extends React.Component {
                     ListLoai: res.data
                 }));
 
-    }
-  
 
-  
+    }
+    //nhan gia tri 
+      handleChange = (e) => {
+        this.setState({ [e.target.name]: e.target.value });
+    }
+    //them van ban
     AddVB() {    
         axios.post('/Vanbans', {
             IDVB: this.state.newvb.idvb,
@@ -92,11 +122,14 @@ class AddVB extends React.Component {
                     ngaynhan: '',
                     nguoiky: ''
                 },
+                ListDV: [],
+                listNV: [],
                 ListLoai: [],
                 ListPH: [],
-                //selectedFile: '',
-                //progress: 0,
-                //status: ''
+                selectedFile: '',
+                progress: 0,
+                status: ''
+             
             });
            
 
@@ -107,62 +140,128 @@ class AddVB extends React.Component {
             });
 
     }
-
-     handleChange = (e) =>{
-        this.setState({ [e.target.name]: e.target.value });
-    }
-  
-   
+    //them file
     selectFileHandler = (event) => {
-        
         const fileTypes = ['application/pdf'];
         let file = event.target.files;
         console.log(`File ${file}`);
-      
         let errMessage = [];
-      
         if (fileTypes.every(extension => file[0].type != extension)) {
             errMessage.push(`The file ${file.type} extension is not supported`);
         } else {
+            let { newvb } = this.state;
+            newvb.file = event.target.value;
+
             this.setState({
                 selectedFile: file[0],
-               
-                newvb: { file: event.target.value }
-               
-            });
+                newvb
+
+            }, () => this.uploadHandler());
         }
     };
-
+    //upload file
     uploadHandler = (event) => {
-      
-            const formData = new FormData();
-            formData.append('PDF', this.state.selectedFile);
-            axios.post('/uploadfile', formData, {
-                onUploadProgress: progressEvent => {
-                    this.setState({
-                        
-                        progress: (progressEvent.loaded / progressEvent.total * 100)
-                    })
-                }
-            })
-                .then((response) => {
-                    this.setState({ status: `Tải lên thành công` });
-                })
-                .catch((error) => {
-                    this.setState({ status: `Tải lên thất bại` });
-                })
-        }
-        
-    
 
-     handleCancel(e) {
+        const formData = new FormData();
+        formData.append('PDF', this.state.selectedFile);
+        axios.post('/uploadfile', formData, {
+            onUploadProgress: progressEvent => {
+                this.setState({
+                    progress: (progressEvent.loaded / progressEvent.total * 100)
+                })
+            }
+        })
+            .then((response) => {
+                this.setState({
+
+                    status: `Tải file lên thành công`
+                });
+            })
+            .catch((error) => {
+                this.setState({ status: `Tải lên thất bại` });
+            })
+    }
+    //tro ve
+    handleCancel(e) {
         e.preventDefault();
         this.props.history.push('index');
     }  
+    //dual listbox
+    renderPlanets() {
+        const { ListNV } = this.state;
+        const { ListDV } = this.state;
 
-    
+        const options = [
+            {
+                value: 'abc', label: 'hihi'
+            },
+            { value: 'phobos', label: 'Phobos' },
 
+        ];
+
+        const planets = {
+            canhan: {
+                name: 'Cá nhân', moons: 'abc'
+            },
+            donvi: { name: 'Đơn vị', moons: ['phobos', 'deimos'] },
+            moinguoi: { name: 'Mọi người', moons: [] },
+
+
+        };
+
+        const { planet: selectedPlanet } = this.state;
+
+        return Object.keys(planets).map((planet) => (
+            <FormGroup check inline>
+                <label key={planet} htmlFor={planet}>
+
+                    <Input
+                        checked={planet === selectedPlanet}
+                        id={planet}
+                        name="planets"
+                        type="radio"
+                        value={planet}
+                        onChange={this.onPlanetChange}
+                    />  {planets[planet].name} &nbsp;  &nbsp;   
+                </label>
+            </FormGroup>
+        ));
+    }
+
+    onPlanetChange(event) {
+        const planet = event.currentTarget.value;
+
+        this.setState({ planet });
+    }
+    onChange = (selected) => {
+        this.setState({ selected });
+    };
+   
+
+    //hien thi
     render() {
+        const { selected, planet } = this.state;
+        const { ListNV } = this.state;
+        const { ListDV } = this.state;
+        
+        const options = [
+            {
+                value: 'abc', label: 'hihi'
+            },
+            { value: 'phobos', label: 'Phobos' },
+
+        ];
+
+        const planets = {
+            canhan: {
+                name: 'Cá nhân', moons: 'abc'
+            },
+            donvi: { name: 'Đơn vị', moons: ['phobos', 'deimos'] },
+            moinguoi: { name: 'Mọi người', moons: [] },
+
+
+        };
+
         return (
             <div className="content">
                 
@@ -273,12 +372,11 @@ class AddVB extends React.Component {
                      
                         <tr>
                             <td>
-                        <Label for="file">File đính kèm:</Label>
+                                <Label for="file" >File đính kèm:</Label>
 
-                                <Input required id="file" type="file" value={this.state.newvb.file} onChange={this.selectFileHandler} /> 
+                                <Input required className="upload" id="file" type="file" value={this.state.newvb.file} onChange={this.selectFileHandler.bind(this)} /> 
                                 <br/>
-                                <div><button type="button" onClick={this.uploadHandler}>Tải lên </button></div>
-                                <div>{this.state.progress}</div>
+                                <div>{this.state.progress}%</div>
 
                                 <div>{this.state.status}</div>  
                  
@@ -289,43 +387,20 @@ class AddVB extends React.Component {
                                 
                         </tr>
                       
-                        <tr>
-                            <td>Gửi đến:
-                             
-                                 <FormGroup check inline>
-                                <Label check for="canhan">
-                                   <Input
-                                        id="canhan"
-                                        value="canhan"
-                                        name="nguoinhan"
-                                            type="radio"
-                                            defaultChecked
-                                        onChange={this.handleChange}
-                                       
-                                    />Cá nhân 
-                                </Label>
-                                <Label for="donvi" check>
-                                  <Input
-                                        id="donvi"
-                                        value="donvi"
-                                        name="nguoinhan"
-                                        type="radio"
-                                        onChange={this.handleChange}
-                                    />Đơn vị
-                                </Label>
-                                <Label for="moinguoi" check>
-                              <Input
-                                        id="moinguoi"
-                                        value="moinguoi"
-                                        name="nguoinhan"
-                                        type="radio"
-                                        onChange={this.handleChange}
-                                    />Mọi người 
-                                </Label>
-                                </FormGroup>
-                            </td>
-                        </tr>
-                   
+                       
+                      
+                            <div className="restrict-available-container">
+                                <div className="moons">
+                                Gửi đến:&nbsp;  {this.renderPlanets()}
+                                </div>
+                                <DualListBox
+                                    available={planets[planet].moons}
+                                    options={options}
+                                    selected={selected}
+                                    onChange={this.onChange}
+                                />
+                            </div>
+                          
                
                         <tr>
                             <td align="right">

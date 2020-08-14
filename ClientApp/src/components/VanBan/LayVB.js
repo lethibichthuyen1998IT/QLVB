@@ -55,6 +55,9 @@ class LayVB extends React.Component {
 
             ListLoai: [],
             ListPH: [],
+            selectedFile: '',
+            progress: 0,
+            status: '',
             editModal: false,
             detailModal: false,
             valueSearch: ''
@@ -88,7 +91,46 @@ class LayVB extends React.Component {
 
     }
 
+    selectFileHandler = (event) => {
+        const fileTypes = ['application/pdf'];
+        let file = event.target.files;
+        console.log(`File ${file}`);
+        let errMessage = [];
+        if (fileTypes.every(extension => file[0].type != extension)) {
+            errMessage.push(`The file ${file.type} extension is not supported`);
+        } else {
+            let { editData } = this.state;
+            editData.file = event.target.value;
 
+            this.setState({
+                selectedFile: file[0],
+                editData
+
+            }, () => this.uploadHandler());
+        }
+    };
+    //upload file
+    uploadHandler = (event) => {
+
+        const formData = new FormData();
+        formData.append('PDF', this.state.selectedFile);
+        axios.post('/uploadfile', formData, {
+            onUploadProgress: progressEvent => {
+                this.setState({
+                    progress: (progressEvent.loaded / progressEvent.total * 100)
+                })
+            }
+        })
+            .then((response) => {
+                this.setState({
+
+                    status: `Tải lên thành công`
+                });
+            })
+            .catch((error) => {
+                this.setState({ status: `Tải lên thất bại` });
+            })
+    }
 
     toggleEditModal() {
         this.setState({
@@ -258,7 +300,7 @@ class LayVB extends React.Component {
                                                                 <Label for="trichyeu">Trích yếu:  {this.state.detailsData.trichyeu} </Label> 
                                                                 <br />
 
-                                                                <Label for="file">Xem file: <a href={"/UploadedFiles/" + (this.state.detailsData.file).split('\\').pop()} download> Tải xuống </a> </Label> 
+                                                                <Label for="file">Xem file: {(this.state.detailsData.file).split('\\').pop()} <a href={"/UploadedFiles/" + (this.state.detailsData.file).split('\\').pop()} download> Tải xuống </a> </Label> 
                                                                 <br />
                                                                 <Label for="ngayky">Ngày ký: {moment(this.state.detailsData.ngayky).format("DD-MM-YYYY")}</Label> 
                                                                 <br />
@@ -336,12 +378,11 @@ class LayVB extends React.Component {
                                                             </FormGroup>
                                                             <FormGroup>
                                                                 <Label for="file">File:</Label>
+                                                                    <Input required id="file" type="text" value={this.state.editData.file} />
+                                                                    <Input required id="file" type="file" onChange={this.selectFileHandler.bind(this)} />
+                                                                    <div>{this.state.progress}%</div>
 
-                                                                <Input id="file" type="text" value={this.state.editData.file} onChange={(e) => {
-                                                                    let { editData } = this.state;
-                                                                    editData.file = e.target.value;
-                                                                    this.setState({ editData });
-                                                                }} />
+                                                                    <div>{this.state.status}</div>  
                                                             </FormGroup>
                                                             <FormGroup>
                                                                 <Label for="ngayky">Ngày ký: </Label>
