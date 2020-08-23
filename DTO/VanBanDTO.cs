@@ -11,7 +11,9 @@ namespace QuanLy.Models
        [Key]
         public string Idvb { get; set; }
         public string Tenph { get; set; }
+      
         public string Idph { get; set; }
+        public string Hoten { get; set; }
         public string Tenloai { get; set; }
         public int Idloai { get; set; }
         public string Sovb { get; set; }
@@ -21,7 +23,9 @@ namespace QuanLy.Models
         public DateTime? Ngaygoi { get; set; }
         public DateTime? Ngaynhan { get; set; }
         public string Nguoiky { get; set; }
+        public int? Idnv { get; set; }
         public virtual Loaivanban IdloaiNavigation { get; set; }
         public virtual Noiphathanh IdphNavigation { get; set; }
+        public virtual Nhanvien IdnvNavigation { get; set; }
     }
 }

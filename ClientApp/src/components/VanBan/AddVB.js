@@ -14,68 +14,70 @@ import {
     Button,
     Input, Label, Form, FormGroup
 } from "reactstrap";
-
-
-
-
+var date = new Date();
 class AddVB extends React.Component {
     constructor(props) {
         super(props)
         this.state = {
-
             newvb: {
-                idvb: '',
+              
                 idph: '',
                 idloai: '',
                 sovb: '',
                 trichyeu: '',
                file:'',
                 ngayky: '',
-                ngaygoi: '',
+                ngaygoi: date,
                 ngaynhan: '',
-                nguoiky: ''
+                nguoiky: '',
+                idnv: 14
             },
+            quyenvb:
+            {
+               
+                idnv: 14,
+                quyen: 0,
+                daxuly: 0
 
+            },
+                        
              ListLoai: [],
             ListPH: [],
             ListNV: [],
             ListDV: [],
+            optionnv: [],
+            optiondv:[],
             selectedFile: '',
             progress: 0,
             status: '',
             planet: 'moinguoi',
+            planets:[],
             selected: []
-            
-            }
-  
+          
+        }
+      
         this.onChange = this.onChange.bind(this);
         this.onPlanetChange = this.onPlanetChange.bind(this);
-        this.handleCancel = this.handleCancel.bind(this);  
-     
-      
+        this.handleCancel = this.handleCancel.bind(this);   
     }
-      
-
-
-
-
-
-    
-
     //load du lieu
     componentDidMount() {
 
         axios.get('/donvis')
             .then((res) =>
                 this.setState({
-                    ListDV: res.data
+                    ListDV: res.data,
+                  
                 }));
-
+        
+    
         axios.get('/nhanviens')
             .then((res) =>
                 this.setState({
-                    ListNV: res.data
+                    ListNV: res.data,
+                   
                 }));
+
         axios.get('/Noiphathanhs')
             .then((res) =>
                 this.setState({
@@ -87,59 +89,74 @@ class AddVB extends React.Component {
                 this.setState({
                     ListLoai: res.data
                 }));
-
+        
+        
 
     }
     //nhan gia tri 
       handleChange = (e) => {
         this.setState({ [e.target.name]: e.target.value });
     }
+    
+            
     //them van ban
-    AddVB() {    
+    AddVB() {
         axios.post('/Vanbans', {
-            IDVB: this.state.newvb.idvb,
+           
             IDPH: this.state.newvb.idph,
             IDLOAI: this.state.newvb.idloai,
             SOVB: this.state.newvb.sovb,
             TRICHYEU: this.state.newvb.trichyeu,
-            FILE: this.state.newvb.file, 
+            FILE: this.state.newvb.file,
             NGAYKY: this.state.newvb.ngayky,
             NGAYGOI: this.state.newvb.ngaygoi,
             NGAYNHAN: this.state.newvb.ngaynhan,
             NGUOIKY: this.state.newvb.nguoiky,
+            IDNV: this.state.newvb.idnv
         }).then((response) => {
-            alert("Lưu thành công!");
-            this.setState({
-                newvb: {
-                    idvb: '',
-                    idph: '',
-                    idloai: 0,
-                    sovb: '',
-                    trichyeu: '',
-                    file: '',
-                    ngayky: '',
-                    ngaygoi: '',
-                    ngaynhan: '',
-                    nguoiky: ''
-                },
-                ListDV: [],
-                listNV: [],
-                ListLoai: [],
-                ListPH: [],
-                selectedFile: '',
-                progress: 0,
-                status: ''
-             
-            });
            
+            return axios.post('/Quyenvanbans', {    
+                IDNV: this.state.quyenvb.idnv, 
+                QUYEN: this.state.quyenvb.quyen,
+                DAXULY: this.state.quyenvb.daxuly,
 
-        })
-            .catch((error) => {
-                console.log(error.response);
-                alert(error);
             });
+        })
+            .then((response) => {
+                alert("Phát hành văn bản thành công!");
+                this.setState({
+                    newvb: {
+                        idvb: '',
+                        idph: '',
+                        idloai: 0,
+                        sovb: '',
+                        trichyeu: '',
+                        file: '',
+                        ngayky: '',
+                        ngaygoi: '',
+                        ngaynhan: '',
+                        nguoiky: '',
+                        idnv: 14
+                    },
+                    quyenvb:
+                    {
+                        idquyenvb: '',
+                        idnv: 14,
+                        quyen: 0,
+                        daxuly: 0
 
-    }
+                    },
+                    ListLoai: [],
+                    ListPH: [],
+                    selectedFile: '',
+                    progress: 0,
+                    status: ''
+                });
+            })
+           
+       
+        }
+     
     //them file
     selectFileHandler = (event) => {
         const fileTypes = ['application/pdf'];
@@ -186,88 +203,72 @@ class AddVB extends React.Component {
         e.preventDefault();
         this.props.history.push('index');
     }  
-    //dual listbox
+    //dual listbox radio
     renderPlanets() {
-        const { ListNV } = this.state;
-        const { ListDV } = this.state;
+        const { ListNV, ListDV} = this.state;
+        this.state.optiondv = ListDV.map(dv => ({
+            "value": dv.iddonvi,
+            "label": dv.tendonvi
+             }));
+        this.state.optionnv = ListNV.map(nv => ({
+            "value": nv.idnv,
+            "label": nv.hoten
 
-        const options = [
-            {
-                value: 'abc', label: 'hihi'
-            },
-            { value: 'phobos', label: 'Phobos' },
 
-        ];
+        }));
+        
 
-        const planets = {
-            canhan: {
-                name: 'Cá nhân', moons: 'abc'
-            },
-            donvi: { name: 'Đơn vị', moons: ['phobos', 'deimos'] },
+        this.state.planets = {
+            nhanvien: { name: 'Nhân viên', moons: this.state.optionnv },
+            donvi: { name: 'Đơn vị', moons: this.state.optiondv },
             moinguoi: { name: 'Mọi người', moons: [] },
 
-
         };
-
+        
         const { planet: selectedPlanet } = this.state;
-
-        return Object.keys(planets).map((planet) => (
+        return Object.keys(this.state.planets).map((planet) => (
             <FormGroup check inline>
                 <label key={planet} htmlFor={planet}>
-
-                    <Input
+                    <input
                         checked={planet === selectedPlanet}
                         id={planet}
                         name="planets"
                         type="radio"
                         value={planet}
                         onChange={this.onPlanetChange}
-                    />  {planets[planet].name} &nbsp;  &nbsp;   
+                    />
+                    {this.state.planets[planet].name}&nbsp; &nbsp; 
                 </label>
             </FormGroup>
+           
         ));
+        
     }
 
     onPlanetChange(event) {
         const planet = event.currentTarget.value;
-
-        this.setState({ planet });
+        this.setState({
+            planet
+        });
     }
     onChange = (selected) => {
-        this.setState({ selected });
+        this.setState({
+            selected
+        });
     };
-   
+
+
 
     //hien thi
     render() {
-        const { selected, planet } = this.state;
-        const { ListNV } = this.state;
-        const { ListDV } = this.state;
+        var d = new Date();
         
-        const options = [
-            {
-                value: 'abc', label: 'hihi'
-            },
-            { value: 'phobos', label: 'Phobos' },
-
-        ];
-
-        const planets = {
-            canhan: {
-                name: 'Cá nhân', moons: 'abc'
-            },
-            donvi: { name: 'Đơn vị', moons: ['phobos', 'deimos'] },
-            moinguoi: { name: 'Mọi người', moons: [] },
-
-
-        };
-
+        const { selected, planet } = this.state;
         return (
-            <div className="content">
-                
+            <div className="content">            
                 <Form onSubmit={this.AddVB.bind(this)}>
                     <Table>
-                        <tr>
+                                <tr>
                             <td width="250px">
                         <Label for="sovb">Văn bản số: </Label>
 
@@ -289,8 +290,7 @@ class AddVB extends React.Component {
                        
                             </td>
                             </tr>
-
-                   <tr>
+                                <tr>
                         <td>
                         <Label for="idloai">Loại văn bản: </Label>
                                 <Input className="form-control" required  type="select" id="idloai" value={this.state.newvb.idloai} onChange={(e) => {
@@ -306,34 +306,35 @@ class AddVB extends React.Component {
 
                                     </Input>
                                 </td>
-                            <td><Label for="ngaygoi">Ngày gởi: </Label>
-
-                                <Input className="form-control" required  id="ngaygoi" type="date" value={this.state.newvb.ngaygoi} onChange={(e) => {
+                            <td>
+                                <Label for="idphathanh">Nơi phát hành: </Label>
+                                <Input className="form-control" required type="select" id="idph" value={this.state.newvb.idph} onChange={(e) => {
                                     let { newvb } = this.state;
-                                    newvb.ngaygoi = e.target.value;
+                                    newvb.idph = e.target.value;
                                     this.setState({ newvb });
-                                }} /></td>
+                                }} >
+                                    <option value="">-- Chọn nơi phát hành --</option>
+                                    {
+
+                                        this.state.ListPH.map((noiphathanh) =>
+                                            <option key={noiphathanh.idph} value={noiphathanh.idph}>{noiphathanh.tenph}</option>
+                                        )
+
+                                    }
+                                </Input>
+                            </td>
+
                             </tr>
                                 <tr>
-                                    <td>
-                                        <Label for="idphathanh">Nơi phát hành: </Label>
-                                <Input className="form-control" required  type="select" id="idph" value={this.state.newvb.idph} onChange={(e) => {
-                                            let { newvb } = this.state;
-                                            newvb.idph = e.target.value;
-                                            this.setState({ newvb });
-                                        }} >
-                                            <option value="">-- Chọn nơi phát hành --</option>
-                                            {
+                                    
+                            <td> <Label for="nguoiky">Người ký: </Label>
+                                <Input className="form-control" required id="nguoiky" type="text" value={this.state.newvb.nguoiky} onChange={(e) => {
+                                    let { newvb } = this.state;
+                                    newvb.nguoiky = e.target.value;
+                                    this.setState({ newvb });
+                                }} />
 
-                                                this.state.ListPH.map((noiphathanh) =>
-                                                    <option key={noiphathanh.idph} value={noiphathanh.idph}>{noiphathanh.tenph}</option>
-                                                )
-
-                                            }
-                                    </Input>
-                                </td>
-                           
-                          
+                            </td>
                                 <td>
                                     <Label for="ngaynhan">Ngày nhận: </Label>
 
@@ -344,19 +345,8 @@ class AddVB extends React.Component {
                                     }} />
                                 </td>
                         </tr>
-                        <tr>
-                            <td> <Label for="nguoiky">Người ký: </Label>
-                                <Input className="form-control" required id="nguoiky" type="text" value={this.state.newvb.nguoiky} onChange={(e) => {
-                                let { newvb } = this.state;
-                                newvb.nguoiky = e.target.value;
-                                this.setState({ newvb });
-                            }} />
-
-                               </td>
-                            
-                        </tr>
-                    
-                        <tr>
+                                      
+                                <tr>
                             <td colSpan="2">
                                 <Label for="trichyeu">Trích yếu: </Label>
                                 <div className="col-md-9">
@@ -368,9 +358,7 @@ class AddVB extends React.Component {
                                     </div>
                             </td>
                             </tr>
-                     
-                     
-                        <tr>
+                                <tr>
                             <td>
                                 <Label for="file" >File đính kèm:</Label>
 
@@ -385,35 +373,35 @@ class AddVB extends React.Component {
                           
                                 
                                 
-                        </tr>
-                      
-                       
-                      
+                        </tr>    
                             <div className="restrict-available-container">
                                 <div className="moons">
-                                Gửi đến:&nbsp;  {this.renderPlanets()}
-                                </div>
-                                <DualListBox
-                                    available={planets[planet].moons}
-                                    options={options}
-                                    selected={selected}
-                                    onChange={this.onChange}
-                                />
+                                Gửi đến:&nbsp;  {this.renderPlanets()}  
                             </div>
                           
-               
-                        <tr>
+                     
+                        <DualListBox
+                               
+                            options={this.state.planets[planet].moons}
+                                selected={selected}
+                            onChange={this.onChange}
+                        />
+          
+                            </div>
+                                <tr>
                             <td align="right">
-                            <Button type="submit" color="primary" >Lưu lại </Button> &nbsp;
-                    <Button color="secondary" onClick={this.handleCancel.bind(this)}>Bỏ qua</Button>
+                            <Button type="submit" color="primary" >Gửi </Button> &nbsp;
+                    <Button color="secondary" onClick={this.handleCancel.bind(this)}>Thoát</Button>
                                 </td>
-                </tr>
+                                </tr>
                     </Table>
                     </Form>
                
             </div>
-
+              
         )
-    }
+      
+        }
+    
 }
 export default AddVB;

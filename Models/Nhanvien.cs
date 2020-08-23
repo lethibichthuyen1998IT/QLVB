@@ -10,6 +10,7 @@ namespace QuanLy.Models
             Nvbutphe = new HashSet<Nvbutphe>();
             Quyenvb = new HashSet<Quyenvb>();
             Thanhphanthamdu = new HashSet<Thanhphanthamdu>();
+            Vanban = new HashSet<Vanban>();
             Xulycongviec = new HashSet<Xulycongviec>();
         }
 
@@ -30,6 +31,7 @@ namespace QuanLy.Models
         public virtual ICollection<Nvbutphe> Nvbutphe { get; set; }
         public virtual ICollection<Quyenvb> Quyenvb { get; set; }
         public virtual ICollection<Thanhphanthamdu> Thanhphanthamdu { get; set; }
+        public virtual ICollection<Vanban> Vanban { get; set; }
         public virtual ICollection<Xulycongviec> Xulycongviec { get; set; }
     }
 }

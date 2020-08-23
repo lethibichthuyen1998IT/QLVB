@@ -32,14 +32,13 @@ namespace QuanLy.Models
         public virtual DbSet<Thanhphanthamdu> Thanhphanthamdu { get; set; }
         public virtual DbSet<Vaitro> Vaitro { get; set; }
         public virtual DbSet<Vanban> Vanban { get; set; }
-        public virtual DbSet<VanBanDTO> VanBanDTO { get; set; }
         public virtual DbSet<Xulycongviec> Xulycongviec { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
             {
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
+
                 optionsBuilder.UseSqlServer("Server = DESKTOP-910714C\\SQLEXPRESS; Database = QuanLyVanBan; Trusted_Connection = True;");
             }
         }
@@ -60,7 +59,7 @@ namespace QuanLy.Models
 
                 entity.Property(e => e.Idvb)
                     .HasColumnName("IDVB")
-                    .HasMaxLength(15)
+                    .HasMaxLength(6)
                     .IsUnicode(false)
                     .IsFixedLength();
 
@@ -488,13 +487,11 @@ namespace QuanLy.Models
                 entity.Property(e => e.Idvb)
                     .IsRequired()
                     .HasColumnName("IDVB")
-                    .HasMaxLength(15)
+                    .HasMaxLength(6)
                     .IsUnicode(false)
                     .IsFixedLength();
 
-                entity.Property(e => e.Quyen)
-                    .HasColumnName("QUYEN")
-                    .HasMaxLength(100);
+                entity.Property(e => e.Quyen).HasColumnName("QUYEN");
 
                 entity.HasOne(d => d.IdnvNavigation)
                     .WithMany(p => p.Quyenvb)
@@ -573,7 +570,7 @@ namespace QuanLy.Models
 
                 entity.Property(e => e.Idvb)
                     .HasColumnName("IDVB")
-                    .HasMaxLength(15)
+                    .HasMaxLength(6)
                     .IsUnicode(false)
                     .IsFixedLength();
 
@@ -582,6 +579,8 @@ namespace QuanLy.Models
                     .HasMaxLength(1000);
 
                 entity.Property(e => e.Idloai).HasColumnName("IDLOAI");
+
+                entity.Property(e => e.Idnv).HasColumnName("IDNV");
 
                 entity.Property(e => e.Idph)
                     .IsRequired()
@@ -621,6 +620,11 @@ namespace QuanLy.Models
                     .HasForeignKey(d => d.Idloai)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_VANBAN_THUOC TRO_LOAIVANB");
+
+                entity.HasOne(d => d.IdnvNavigation)
+                    .WithMany(p => p.Vanban)
+                    .HasForeignKey(d => d.Idnv)
+                    .HasConstraintName("FK_VANBAN_NHANVIEN");
 
                 entity.HasOne(d => d.IdphNavigation)
                     .WithMany(p => p.Vanban)

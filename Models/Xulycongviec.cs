@@ -11,7 +11,5 @@ namespace QuanLy.Models
 
         public virtual Congviec IdcongviecNavigation { get; set; }
         public virtual Nhanvien IdnvNavigation { get; set; }
-       
     }
-    
 }

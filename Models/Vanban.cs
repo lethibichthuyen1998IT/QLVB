@@ -21,8 +21,10 @@ namespace QuanLy.Models
         public DateTime? Ngaygoi { get; set; }
         public DateTime? Ngaynhan { get; set; }
         public string Nguoiky { get; set; }
+        public int? Idnv { get; set; }
 
         public virtual Loaivanban IdloaiNavigation { get; set; }
+        public virtual Nhanvien IdnvNavigation { get; set; }
         public virtual Noiphathanh IdphNavigation { get; set; }
         public virtual ICollection<Butphe> Butphe { get; set; }
         public virtual ICollection<Quyenvb> Quyenvb { get; set; }

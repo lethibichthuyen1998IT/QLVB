@@ -25,11 +25,13 @@ namespace QuanLy.Controllers
           
             var vb = from a in db.Vanban
                          join b in db.Loaivanban on a.Idloai equals b.Idloai
-                         join c in db.Noiphathanh on a.Idph equals c.Idph
+                         join c in db.Noiphathanh on a.Idph equals c.Idph join d in db.Nhanvien on a.Idnv equals d.Idnv
                          select new VanBanDTO()
                          {
                              Idvb = a.Idvb,
                              Idph = a.Idph,
+                             Idnv=a.Idnv,
+                             Hoten = d.Hoten,
                              Idloai = a.Idloai,
                              Tenloai = b.Tenloai,
                              Tenph = c.Tenph,
@@ -45,6 +47,38 @@ namespace QuanLy.Controllers
                 return vb.ToList();
             
         }
+        [HttpGet("{id}")]
+        public IEnumerable<VanBanDTO> VBGui(string id)
+        {
+
+            var vb = from a in db.Vanban
+                     join b in db.Loaivanban on a.Idloai equals b.Idloai
+                     join c in db.Noiphathanh on a.Idph equals c.Idph
+                     join d in db.Nhanvien on a.Idnv equals d.Idnv
+                     where a.Idnv.ToString() == id
+                     select new VanBanDTO()
+                     {
+                         Idvb = a.Idvb,
+                         Idph = a.Idph,
+                         Idnv = a.Idnv,
+                         Hoten = d.Hoten,
+                         Idloai = a.Idloai,
+                         Tenloai = b.Tenloai,
+                         Tenph = c.Tenph,
+                         Sovb = a.Sovb,
+                         Trichyeu = a.Trichyeu,
+                         File = a.File,
+                         Ngayky = a.Ngayky,
+                         Ngaygoi = a.Ngaygoi,
+                         Ngaynhan = a.Ngaynhan,
+                         Nguoiky = a.Nguoiky
+
+                     };
+            return vb.ToList();
+
+        }
+     
+       
         public string auto_id()
         {
            
@@ -77,6 +111,7 @@ namespace QuanLy.Controllers
             vb.Idvb = auto_id();
             db.Vanban.Add(vb);
             db.SaveChanges();
+            
             return 1;
         }
 
@@ -84,12 +119,21 @@ namespace QuanLy.Controllers
 [HttpPut("{id}")]
         public int SuaVB(Vanban vb)
         {
-          
-           
+
+            Vanban vban = db.Vanban.Find(vb.Idvb);
+            vban.Idvb = vban.Idvb;
+            vban.Idloai = vb.Idloai;
+            vban.Idph = vb.Idph;
+            vban.Sovb = vb.Sovb;
+            vban.Trichyeu = vb.Trichyeu;
+            vban.File = vb.File;
+            vban.Ngayky = vb.Ngayky;
+            vban.Ngaynhan = vb.Ngaynhan;
+            vban.Nguoiky = vb.Nguoiky;
+
             try
             {
-               
-                db.Entry(vb).State = EntityState.Modified;
+                db.Entry(vban).State = EntityState.Modified;
                 db.SaveChanges();
                 return 1;
             }
