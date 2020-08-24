@@ -27,6 +27,8 @@ class LayVB extends React.Component {
         this.state = {
             empList: [],
             VBGui: [],
+            VBXem: [],
+            VBMoi:[],
             source: [],
             showAlert: false,
 
@@ -58,6 +60,7 @@ class LayVB extends React.Component {
             },
             xoa: { idvb: 0, sovb: '' },
             idnv: 14,
+            quyenvb: { idquyenvb: 0, quyen: 0 },
             ListLoai: [],
             ListPH: [],
             selectedFile: '',
@@ -75,18 +78,26 @@ class LayVB extends React.Component {
     }
     //load
     componentDidMount() {
-        axios.get('/Vanbans')
-            .then((res) => this.setState({
-                empList: res.data,
+     
+        axios.get('/Vanbans/vbgui/' + this.state.idnv, { id: Number.parseInt(this.state.idnv) })
+        .then((res) =>
+            this.setState({
                 source: res.data,
-                showAlert: false
+                VBGui: res.data
             }));
-        axios.get('/Vanbans/' + this.state.idnv)
-            .then((res) => this.setState({
-                VBGui: res.data,
-                source: res.data,
-                showAlert: false
-            }));
+
+        axios.get('/Vanbans/vbmoi/' + this.state.idnv, { id: Number.parseInt(this.state.idnv) })
+            .then((res) =>
+                this.setState({
+                    source: res.data,
+                    VBMoi: res.data
+                }));
+        axios.get('/Vanbans/vbxem/' + this.state.idnv, { id: Number.parseInt(this.state.idnv) })
+            .then((res) =>
+                this.setState({
+                    source: res.data,
+                    VBXem: res.data
+                }));
 
         axios.get('/Noiphathanhs')
             .then((res) =>
@@ -99,7 +110,7 @@ class LayVB extends React.Component {
                 this.setState({
                     ListLoai: res.data
                 }));
-
+      
     }
 
     selectFileHandler = (event) => {
@@ -209,16 +220,32 @@ class LayVB extends React.Component {
     }
     //refresh
     refresh = () => {
-        axios.get('/Vanbans')
-            .then((res) => this.setState({
-                empList: res.data,
-                showAlert: false
-            }));
+        
         axios.get('/Vanbans/' + this.state.idnv)
             .then((res) => this.setState({
                 VBGui: res.data,
                 showAlert: false
             }));
+        axios.get('/Vanbans/vbgui/' + this.state.idnv, { id: Number.parseInt(this.state.idnv) })
+            .then((res) =>
+                this.setState({
+                    source: res.data,
+                    VBGui: res.data
+                }));
+
+        axios.get('/Vanbans/vbmoi/' + this.state.idnv, { id: Number.parseInt(this.state.idnv) })
+            .then((res) =>
+                this.setState({
+                    source: res.data,
+                    VBMoi: res.data
+                }));
+        axios.get('/Vanbans/vbxem/' + this.state.idnv, { id: Number.parseInt(this.state.idnv) })
+            .then((res) =>
+                this.setState({
+                    source: res.data,
+                    VBXem: res.data
+                }));
+
     }
     //delete
     deleteVB = (idvb) => {
@@ -253,14 +280,30 @@ class LayVB extends React.Component {
     details(idvb, tenph, tenloai, sovb, trichyeu, file, ngayky, ngaygoi, ngaynhan, nguoiky, hoten) {
         this.setState({
             detailsData: { idvb, tenph, tenloai, sovb, trichyeu, file, ngayky, ngaygoi, ngaynhan, nguoiky, hoten },
-            detailModal: !this.state.detailModal
+            detailModal: !this.state.detailModal,
+            quyenvb: { quyen: 3, idquyenvb: idvb }
         });
-        console.log(idvb);
+        
+              
+           
+      
     }
 
 
     render() {
-        const { empList, VBGui } = this.state;
+        const { VBGui, VBMoi, VBXem, detailModal } = this.state;
+        if (detailModal) {
+            let { quyen, idquyenvb } = this.state.quyenvb;
+            axios.put('/Quyenvanbans/' + this.state.quyenvb.idquyenvb,
+                { idquyenvb, quyen }).then((response) => {
+                    this.setState({
+                        quyenvb: { quyen: 0, idquyenvb: 0 }
+
+                    })
+
+                })
+        }
+       
         return (
 
             <div className="content">
@@ -271,10 +314,13 @@ class LayVB extends React.Component {
                 </Col>
                 <Tabs>
                     <TabList>
-                        <Tab>Tất cả văn bản</Tab>
+                        
+                        <Tab>Văn bản mới</Tab>
+                        <Tab>Văn bản đã xem</Tab>
                         <Tab>Văn bản đã gửi</Tab>
                     </TabList>
 
+                   
                     <TabPanel>
                         <Card>
                             <CardBody>
@@ -294,7 +340,88 @@ class LayVB extends React.Component {
                                     </thead>
                                     <tbody>
                                         {
-                                            empList.map((emp, index) => {
+                                            VBMoi.map((emp, index) => {
+                                                return (
+                                                    <tr key={emp.idvb}>
+                                                        <td>{index + 1}</td>
+                                                        <td>{emp.sovb}</td>
+
+                                                        <td>{emp.tenloai}</td>
+                                                        <td>{emp.tenph}</td>
+                                                        <td>{emp.nguoiky}</td>
+                                                        <td>{moment(emp.ngayky).format("DD-MM-YYYY")}</td>
+
+
+                                                        <td width="320px" >
+                                                            <Button className="btn btn-info" onClick={this.details.bind(this, emp.idvb, emp.tenph, emp.tenloai, emp.sovb, emp.trichyeu, emp.file, emp.ngayky, emp.ngaygoi, emp.ngaynhan, emp.nguoiky, emp.hoten)}>Xem chi tiết  </Button>&nbsp;
+
+                                 <Modal isOpen={this.state.detailModal} toggle={this.toggleDetailModal.bind(this)}>
+                                                                <ModalHeader toggle={this.toggleDetailModal.bind(this)}>Chi tiết văn bản</ModalHeader>
+                                                                <ModalBody>
+                                                                    <Form color="blue">
+                                                                        <Label for="sovb">Số văn bản: {this.state.detailsData.sovb} </Label>
+                                                                        <br />
+                                                                        <Label for="idph">Nơi phát hành:  {this.state.detailsData.tenph} </Label>
+                                                                        <br />
+                                                                        <Label for="idloai">Loại văn bản:  {this.state.detailsData.tenloai} </Label>
+                                                                        <br />
+                                                                        <Label for="trichyeu">Trích yếu:  {this.state.detailsData.trichyeu} </Label>
+                                                                        <br />
+
+                                                                        <Label for="file">Xem file: {(this.state.detailsData.file).split('\\').pop()} <a href={"/UploadedFiles/" + (this.state.detailsData.file).split('\\').pop()} download> Tải xuống </a> </Label>
+                                                                        <br />
+                                                                        <Label for="ngayky">Ngày ký: {moment(this.state.detailsData.ngayky).format("DD-MM-YYYY")}</Label>
+                                                                        <br />
+                                                                        <Label for="ngaygoi">Ngày gởi: {moment(this.state.detailsData.ngaygoi).format("DD-MM-YYYY")}</Label>
+                                                                        <br />
+
+                                                                        <Label for="ngaynhan">Ngày nhận: {moment(this.state.detailsData.ngaynhan).format("DD-MM-YYYY")} </Label>
+
+                                                                        <br />
+                                                                        <Label for="nguoiky">Người ký: {this.state.detailsData.nguoiky} </Label>
+                                                                        <br />
+                                                                        <Label for="nguoiky">Người gởi: {this.state.detailsData.hoten} </Label>
+
+                                                                    </Form>
+
+                                                                </ModalBody>
+                                                                <ModalFooter>
+                                                                    <Button color="primary" onClick={this.updateVB.bind(this)}>Bút phê</Button>
+                                                                    <Button color="secondary" onClick={this.toggleDetailModal.bind(this)}>Thoát</Button>
+                                                                </ModalFooter>
+
+                                                            </Modal>
+                                                        </td>
+                                                    </tr>
+                                                )
+                                            })
+                                        }
+                                    </tbody>
+                                </Table>
+                            </CardBody>
+                        </Card>
+                    </TabPanel>
+                   
+                    <TabPanel>
+                        <Card>
+                            <CardBody>
+                                <Table responsive >
+                                    <thead className="text-primary">
+                                        <tr>
+                                            <th>STT</th>
+                                            <th>Số văn bản</th>
+                                            <th>Loại VB</th>
+                                            <th>Nơi PH</th>
+                                            <th>Người ký</th>
+                                            <th>Ngày ký</th>
+
+
+
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {
+                                            VBXem.map((emp, index) => {
                                                 return (
                                                     <tr key={emp.idvb}>
                                                         <td>{index + 1}</td>
@@ -531,7 +658,7 @@ class LayVB extends React.Component {
 
 
                                                             <Button type="button" className="btn btn-danger"
-                                                                onClick={this.handleShowAlert.bind(this,emp.idvb, emp.sovb )}> Thu hồi </Button>
+                                                                onClick={this.handleShowAlert.bind(this, emp.idvb, emp.sovb)}> Thu hồi </Button>
 
                                                             <SweetAlert
                                                                 show={this.state.showAlert}

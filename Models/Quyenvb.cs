@@ -5,7 +5,7 @@ namespace QuanLy.Models
 {
     public partial class Quyenvb
     {
-        public string Idquyenvb { get; set; }
+        public int Idquyenvb { get; set; }
         public int Idnv { get; set; }
         public string Idvb { get; set; }
         public int? Quyen { get; set; }

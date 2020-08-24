@@ -27,5 +27,7 @@ namespace QuanLy.Models
         public virtual Loaivanban IdloaiNavigation { get; set; }
         public virtual Noiphathanh IdphNavigation { get; set; }
         public virtual Nhanvien IdnvNavigation { get; set; }
+        public virtual ICollection<Butphe> Butphe { get; set; }
+        public virtual ICollection<Quyenvb> Quyenvb { get; set; }
     }
 }

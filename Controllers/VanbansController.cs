@@ -13,49 +13,19 @@ namespace QuanLy.Controllers
 {
     [Route("[controller]")]
     [ApiController]
-  
+
     public class VanbansController : ControllerBase
     {
-      
+
         QuanLyVanBanContext db = new QuanLyVanBanContext();
-     
+
         [HttpGet]
         public IEnumerable<VanBanDTO> Index()
-        {
-          
-            var vb = from a in db.Vanban
-                         join b in db.Loaivanban on a.Idloai equals b.Idloai
-                         join c in db.Noiphathanh on a.Idph equals c.Idph join d in db.Nhanvien on a.Idnv equals d.Idnv
-                         select new VanBanDTO()
-                         {
-                             Idvb = a.Idvb,
-                             Idph = a.Idph,
-                             Idnv=a.Idnv,
-                             Hoten = d.Hoten,
-                             Idloai = a.Idloai,
-                             Tenloai = b.Tenloai,
-                             Tenph = c.Tenph,
-                             Sovb = a.Sovb,
-                             Trichyeu = a.Trichyeu,
-                             File = a.File,
-                             Ngayky = a.Ngayky,
-                             Ngaygoi = a.Ngaygoi,
-                             Ngaynhan = a.Ngaynhan,
-                             Nguoiky = a.Nguoiky
-
-                         };
-                return vb.ToList();
-            
-        }
-        [HttpGet("{id}")]
-        public IEnumerable<VanBanDTO> VBGui(string id)
         {
 
             var vb = from a in db.Vanban
                      join b in db.Loaivanban on a.Idloai equals b.Idloai
-                     join c in db.Noiphathanh on a.Idph equals c.Idph
-                     join d in db.Nhanvien on a.Idnv equals d.Idnv
-                     where a.Idnv.ToString() == id
+                     join c in db.Noiphathanh on a.Idph equals c.Idph join d in db.Nhanvien on a.Idnv equals d.Idnv
                      select new VanBanDTO()
                      {
                          Idvb = a.Idvb,
@@ -77,8 +47,100 @@ namespace QuanLy.Controllers
             return vb.ToList();
 
         }
-     
-       
+        [HttpGet("vbgui/{id}")]
+        public IEnumerable<VanBanDTO> VBGui(int id)
+        {
+
+            var vb = from a in db.Vanban
+                     join b in db.Loaivanban on a.Idloai equals b.Idloai
+                     join c in db.Noiphathanh on a.Idph equals c.Idph
+                     join d in db.Nhanvien on a.Idnv equals d.Idnv
+                     where a.Idnv == id
+                     select new VanBanDTO()
+                     {
+                         Idvb = a.Idvb,
+                         Idph = a.Idph,
+                         Idnv = a.Idnv,
+                         Hoten = d.Hoten,
+                         Idloai = a.Idloai,
+                         Tenloai = b.Tenloai,
+                         Tenph = c.Tenph,
+                         Sovb = a.Sovb,
+                         Trichyeu = a.Trichyeu,
+                         File = a.File,
+                         Ngayky = a.Ngayky,
+                         Ngaygoi = a.Ngaygoi,
+                         Ngaynhan = a.Ngaynhan,
+                         Nguoiky = a.Nguoiky
+
+                     };
+            return vb.ToList();
+
+        }
+
+        [HttpGet("vbmoi/{id}")]
+        public IEnumerable<VanBanDTO> VBMoi(int id)
+        {
+
+            var vb = from a in db.Vanban
+                     join b in db.Loaivanban on a.Idloai equals b.Idloai
+                     join c in db.Noiphathanh on a.Idph equals c.Idph
+                     join d in db.Nhanvien on a.Idnv equals d.Idnv
+                     join e in db.Quyenvb on a.Idvb equals e.Idvb
+                     where e.Idnv == id && e.Quyen == 0
+                     select new VanBanDTO()
+                     {
+                         Idvb = a.Idvb,
+                         Idph = a.Idph,
+                         Idnv = a.Idnv,
+                         Hoten = d.Hoten,
+                         Idloai = a.Idloai,
+                         Tenloai = b.Tenloai,
+                         Tenph = c.Tenph,
+                         Sovb = a.Sovb,
+                         Trichyeu = a.Trichyeu,
+                         File = a.File,
+                         Ngayky = a.Ngayky,
+                         Ngaygoi = a.Ngaygoi,
+                         Ngaynhan = a.Ngaynhan,
+                         Nguoiky = a.Nguoiky
+
+                     };
+            return vb.ToList();
+
+        }
+        [HttpGet("vbxem/{id}")]
+        public IEnumerable<VanBanDTO> VBXem(int id)
+        {
+
+            var vb = from a in db.Vanban
+                     join b in db.Loaivanban on a.Idloai equals b.Idloai
+                     join c in db.Noiphathanh on a.Idph equals c.Idph
+                     join d in db.Nhanvien on a.Idnv equals d.Idnv
+                     join e in db.Quyenvb on a.Idvb equals e.Idvb
+                     where e.Idnv == id && e.Quyen == 3
+                     select new VanBanDTO()
+                     {
+                         Idvb = a.Idvb,
+                         Idph = a.Idph,
+                         Idnv = a.Idnv,
+                         Hoten = d.Hoten,
+                         Idloai = a.Idloai,
+                         Tenloai = b.Tenloai,
+                         Tenph = c.Tenph,
+                         Sovb = a.Sovb,
+                         Trichyeu = a.Trichyeu,
+                         File = a.File,
+                         Ngayky = a.Ngayky,
+                         Ngaygoi = a.Ngaygoi,
+                         Ngaynhan = a.Ngaynhan,
+                         Nguoiky = a.Nguoiky
+
+                     };
+            return vb.ToList();
+
+        }
+
         public string auto_id()
         {
            

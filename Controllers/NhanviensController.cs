@@ -82,7 +82,6 @@ namespace QuanLy.Controllers
         }
 
         [HttpPut("{id}")]
-
         public int Edit(Nhanvien employee)
         {
             Nhanvien nv = tb.Nhanvien.Find(employee.Idnv);

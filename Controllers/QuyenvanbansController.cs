@@ -14,38 +14,31 @@ namespace QuanLy.Controllers
     public class QuyenvanbansController : ControllerBase
     {
         QuanLyVanBanContext db = new QuanLyVanBanContext();
-        public string auto_id()
+
+
+        [HttpGet("{id}")]
+        public IEnumerable<int> NhanVien(int id)
         {
-            int id;
-            string autoID = "Q";
-            if (db.Quyenvb.Count() == 0) id = 0;
-            else
-            {
-                var maxID = db.Quyenvb.Max(x => x.Idquyenvb);
-                id = int.Parse(maxID.Substring(1));
-            }
-            id++;
-            switch (id.ToString().Length)
-            {
-                case 1:
-                    autoID += "00" + id;
-                    break;
-                case 2:
-                    autoID += "0" + id;
-                    break;
-                default:
-                    autoID += id;
-                    break;
-            }
-            return autoID;
+
+            var nv = from a in db.Nhanvien where a.Iddonvi == id select a.Idnv; 
+            return nv.ToList();
 
         }
-   
+        [HttpGet]
+        public IEnumerable<int> getAll()
+        {
+
+            var all = from a in db.Nhanvien select a.Idnv;
+            return all.ToList();
+
+        }
+
+
+
         [HttpPost]
         public int Create([FromBody] Quyenvb qvb)
         {
             var idvb = (from a in db.Vanban orderby a.Idvb descending select a.Idvb).FirstOrDefault();
-            qvb.Idquyenvb = auto_id();
             qvb.Idvb = idvb;
             db.Quyenvb.Add(qvb);
           
@@ -54,6 +47,17 @@ namespace QuanLy.Controllers
                 return 1;
 
          
+        }
+
+        [HttpPut("{id}")]
+        public int SuaQuyen(Quyenvb q)
+        {
+            Quyenvb qvb = db.Quyenvb.Find(q.Idquyenvb);
+            qvb.Idquyenvb = qvb.Idquyenvb;
+            qvb.Quyen = q.Quyen;
+            db.Entry(qvb).State = EntityState.Modified;
+            db.SaveChanges();
+            return 1;
         }
     }
 }

@@ -34,8 +34,7 @@ class AddVB extends React.Component {
             },
             quyenvb:
             {
-               
-                idnv: 14,
+
                 quyen: 0,
                 daxuly: 0
 
@@ -45,14 +44,17 @@ class AddVB extends React.Component {
             ListPH: [],
             ListNV: [],
             ListDV: [],
+            nv: [],
+            moinguoi:[],
             optionnv: [],
             optiondv:[],
             selectedFile: '',
             progress: 0,
             status: '',
-            planet: 'moinguoi',
+            planet: 'nhanvien',
             planets:[],
-            selected: []
+            selected: [],
+            select:false
           
         }
       
@@ -89,7 +91,13 @@ class AddVB extends React.Component {
                 this.setState({
                     ListLoai: res.data
                 }));
-        
+       
+        axios.get('/Quyenvanbans')
+            .then((res) =>
+                this.setState({
+                    moinguoi: res.data
+                }));
+
         
 
     }
@@ -102,7 +110,6 @@ class AddVB extends React.Component {
     //them van ban
     AddVB() {
         axios.post('/Vanbans', {
-           
             IDPH: this.state.newvb.idph,
             IDLOAI: this.state.newvb.idloai,
             SOVB: this.state.newvb.sovb,
@@ -114,15 +121,42 @@ class AddVB extends React.Component {
             NGUOIKY: this.state.newvb.nguoiky,
             IDNV: this.state.newvb.idnv
         }).then((response) => {
-           
-            return axios.post('/Quyenvanbans', {    
-                IDNV: this.state.quyenvb.idnv, 
-                QUYEN: this.state.quyenvb.quyen,
-                DAXULY: this.state.quyenvb.daxuly,
 
-            });
-        })
-            .then((response) => {
+            if (this.state.planet == "donvi") {
+                this.state.nv.forEach(
+                    (i) => {
+                        return axios.post('/Quyenvanbans', {
+                            IDNV: Number.parseInt(i),
+                            QUYEN: this.state.quyenvb.quyen,
+                            DAXULY: this.state.quyenvb.daxuly
+
+                        })
+                    })
+            }
+             if (this.state.planet == "moinguoi") {
+                this.state.moinguoi.forEach(
+                    (i) => {
+                        return axios.post('/Quyenvanbans', {
+                            IDNV: Number.parseInt(i),
+                            QUYEN: this.state.quyenvb.quyen,
+                            DAXULY: this.state.quyenvb.daxuly
+
+                        })
+                    })
+            }
+            if (this.state.planet == "nhanvien") {
+                this.state.selected.forEach(
+                    (i) => {
+                        return axios.post('/Quyenvanbans', {
+                            IDNV: Number.parseInt(i),
+                            QUYEN: this.state.quyenvb.quyen,
+                            DAXULY: this.state.quyenvb.daxuly
+
+                        })
+                    })
+                }
+
+        }).then((response) => {
                 alert("Phát hành văn bản thành công!");
                 this.setState({
                     newvb: {
@@ -140,8 +174,6 @@ class AddVB extends React.Component {
                     },
                     quyenvb:
                     {
-                        idquyenvb: '',
-                        idnv: 14,
                         quyen: 0,
                         daxuly: 0
 
@@ -166,13 +198,13 @@ class AddVB extends React.Component {
         if (fileTypes.every(extension => file[0].type != extension)) {
             errMessage.push(`The file ${file.type} extension is not supported`);
         } else {
-            let { newvb } = this.state;
+            let { newvb,quyenvb } = this.state;
             newvb.file = event.target.value;
 
             this.setState({
                 selectedFile: file[0],
-                newvb
-
+                newvb,
+                quyenvb
             }, () => this.uploadHandler());
         }
     };
@@ -205,6 +237,7 @@ class AddVB extends React.Component {
     }  
     //dual listbox radio
     renderPlanets() {
+       
         const { ListNV, ListDV} = this.state;
         this.state.optiondv = ListDV.map(dv => ({
             "value": dv.iddonvi,
@@ -216,8 +249,10 @@ class AddVB extends React.Component {
 
 
         }));
-        
 
+        
+      
+       
         this.state.planets = {
             nhanvien: { name: 'Nhân viên', moons: this.state.optionnv },
             donvi: { name: 'Đơn vị', moons: this.state.optiondv },
@@ -227,7 +262,7 @@ class AddVB extends React.Component {
         
         const { planet: selectedPlanet } = this.state;
         return Object.keys(this.state.planets).map((planet) => (
-            <FormGroup check inline>
+            
                 <label key={planet} htmlFor={planet}>
                     <input
                         checked={planet === selectedPlanet}
@@ -239,8 +274,8 @@ class AddVB extends React.Component {
                     />
                     {this.state.planets[planet].name}&nbsp; &nbsp; 
                 </label>
-            </FormGroup>
            
+          
         ));
         
     }
@@ -250,21 +285,40 @@ class AddVB extends React.Component {
         this.setState({
             planet
         });
+       
+       
+        
+      
     }
     onChange = (selected) => {
         this.setState({
-            selected
-        });
-    };
+            selected,
+            select: true
+            
+        });   
+};
 
 
 
     //hien thi
     render() {
-        var d = new Date();
-        
-        const { selected, planet } = this.state;
+
+        const { selected, planet,select } = this.state;
+        if (planet == "donvi" && select) {
+            selected.forEach(
+                (i) => {
+                    axios.get('/Quyenvanbans/' + i)
+                        .then((res) =>
+                            this.setState({
+                                nv: res.data
+                            }));
+
+                })
+          
+        }
+      
         return (
+
             <div className="content">            
                 <Form onSubmit={this.AddVB.bind(this)}>
                     <Table>
@@ -350,7 +404,7 @@ class AddVB extends React.Component {
                             <td colSpan="2">
                                 <Label for="trichyeu">Trích yếu: </Label>
                                 <div className="col-md-9">
-                                    <Input className="form-control" type="textarea" id="trichyeu" value={this.state.newvb.trichyeu} onChange={(e) => {
+                                    <Input required className="form-control" type="textarea" id="trichyeu" value={this.state.newvb.trichyeu} onChange={(e) => {
                             let { newvb } = this.state;
                             newvb.trichyeu = e.target.value;
                             this.setState({ newvb });
@@ -384,7 +438,9 @@ class AddVB extends React.Component {
                                
                             options={this.state.planets[planet].moons}
                                 selected={selected}
-                            onChange={this.onChange}
+                                onChange={this.onChange}
+                              
+                               
                         />
           
                             </div>
