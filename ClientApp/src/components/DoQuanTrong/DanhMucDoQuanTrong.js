@@ -38,6 +38,9 @@ class DanhMucDoQuanTrong extends React.Component {
                 tendqt: ''
 
             },
+            chucnang: [],
+            quyen: [],
+            nv: [],
 
             modalAdd: false,
             editModal: false,
@@ -57,6 +60,24 @@ class DanhMucDoQuanTrong extends React.Component {
 
     //list
     componentDidMount() {
+        const nvs = JSON.parse(localStorage.getItem('user'));
+        this.setState({
+            nv: nvs
+        });
+        axios.get('/quyens')
+            .then((res) => this.setState({
+                quyen: res.data,
+
+            })
+
+            );
+        axios.get('/chucnangs')
+            .then((res) => this.setState({
+                chucnang: res.data,
+
+            })
+
+            );
 
         axios.get('/doquantrongs')
             .then((res) => this.setState({
@@ -197,115 +218,20 @@ class DanhMucDoQuanTrong extends React.Component {
     render() {
 
         const { doqt } = this.state;
-        if (this.state.modalAdd === false) return (
-            <>
+        //Quyền
+        const { nv, quyen, chucnang } = this.state;
+        let rules = [];
+        quyen.forEach((e) => {
+            if (e.idvaitro.trim() === nv.idvaitro.trim())
+                rules.push(e.idcn);
+        });
+        const name = "Quản lý độ quan trọng";
+        let cn = [];
+        chucnang.forEach((x) => {
+            if (x.tencn.toLowerCase() === name.toLowerCase())
+                cn.push(x.idcn);
+        });
 
-                <div className="content">
-
-                    <Row>
-                        <Col md="12">
-                            <Card>
-                                <CardHeader>
-
-                                    <CardTitle tag="h4">Độ quan trọng văn bản</CardTitle>
-                                    <CardTitle>
-                                        <Row md="12">
-                                            <Col md="4">
-                                                <Button color="primary" onClick={this.toggleNewdoqtModal.bind(this)}>{(this.state.modalAdd) ? 'Đóng' : 'Thêm độ quan trọng'}</Button>
-                                            </Col>
-                                            <Col md="4">
-                                                <Search
-                                                    valueSearch={this.state.valueSearch}
-                                                    handleSearch={this.handleSearch} />
-                                            </Col>
-
-
-                                        </Row>
-                                    </CardTitle>
-
-
-                                </CardHeader>
-                                <CardBody>
-                                    <Table className="table table-hover">
-                                        <thead className="text-primary">
-                                            <tr>
-                                                <th>Mã dộ quan trọng</th>
-                                                <th>Độ quan trọng</th>
-
-                                                <th>Thao tác</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {
-                                                doqt.map((dqt) => {
-                                                    return (
-
-                                                        <tr key={dqt.iddqt}>
-                                                            <td>{dqt.iddqt}</td>
-                                                            <td>{dqt.tendqt}</td>
-
-
-                                                            <td>
-
-
-                                                                <Button color="success" size="sm" className="mr-2" onClick={this.edit.bind(this, dqt.iddqt, dqt.tendqt)}>Edit</Button>
-
-                                                                <Modal isOpen={this.state.editModal} toggle={this.toggleEditModal.bind(this)}>
-                                                                    <ModalHeader toggle={this.toggleEditModal.bind(this)}>Edit</ModalHeader>
-                                                                    <ModalBody>
-                                                                        <Form>
-
-                                                                            <FormGroup>
-                                                                                <Label for="tendqt">Độ quan trọng</Label>
-                                                                                <Input id="tendqt" value={this.state.editData.tendqt} onChange={(e) => {
-                                                                                    let { editData } = this.state;
-                                                                                    editData.tendqt = e.target.value;
-                                                                                    this.setState({ editData });
-                                                                                }} />
-                                                                            </FormGroup>
-                                                                        </Form>
-                                                                    </ModalBody>
-                                                                    <ModalFooter>
-                                                                        <Button color="primary" onClick={this.updateDQT.bind(this)}>Thực hiện lưu</Button>
-                                                                        <Button color="secondary" onClick={this.toggleEditModal.bind(this)}>Hủy bỏ</Button>
-                                                                    </ModalFooter>
-                                                                </Modal>
-                                                                <Button
-                                                                    type="button" className="btn btn-danger btn-sm"
-                                                                    onClick={() => this.handleShowAlert({ id: dqt })}>
-                                                                    Delete
-                                                                     </Button>
-                                                                <SweetAlert
-                                                                    show={this.state.showAlert}
-
-                                                                    title="Xóa"
-                                                                    html
-                                                                    text={"Bạn có muốn xóa độ quan trọng: " + dqt.tendqt + " không?"}
-
-                                                                    showCancelButton
-                                                                    onOutsideClick={() => this.setState({ showAlert: false })}
-                                                                    onEscapeKey={() => this.setState({ showAlert: false })}
-                                                                    onCancel={() => this.setState({ showAlert: false })}
-                                                                    onConfirm={() => this.deletedoqt({ iddqt: dqt.iddqt })}
-
-                                                                />
-                                                            </td>
-
-                                                        </tr>
-                                                    )
-                                                })
-                                            }
-
-                                        </tbody>
-                                    </Table>
-                                </CardBody>
-                            </Card>
-                        </Col>
-
-                    </Row>
-                </div>
-            </>
-        );
         return (
             <>
 
@@ -319,9 +245,13 @@ class DanhMucDoQuanTrong extends React.Component {
                                     <CardTitle tag="h4">Độ quan trọng văn bản</CardTitle>
                                     <CardTitle>
                                         <Row md="12">
-                                            <Col md="4">
-                                                <Button color="primary" onClick={this.toggleNewdoqtModal.bind(this)}>{(this.state.modalAdd) ? 'Đóng' : 'Thêm độ quan trọng'}</Button>
-                                            </Col>
+                                            {
+                                                (rules.find(x => x == cn)) ?
+                                                    <Col md="4">
+                                                        <Button color="primary" onClick={this.toggleNewdoqtModal.bind(this)}>{(this.state.modalAdd) ? 'Đóng' : 'Thêm độ quan trọng'}</Button>
+                                                    </Col>
+                                                    : null
+                                            }
                                             <Col md="4">
                                                 <Search
                                                     valueSearch={this.state.valueSearch}
@@ -331,24 +261,26 @@ class DanhMucDoQuanTrong extends React.Component {
 
                                         </Row>
                                         <Row md="12">
-
-                                            <Form className="form-inline">
-                                                <Col md="5">
-                                                    <FormGroup>
-                                                        <Input value={this.state.newdqt.Tendqt} onChange={(e) => {
-                                                            let { newdqt } = this.state;
-                                                            newdqt.Tendqt = e.target.value;
-                                                            this.setState({ newdqt });
-                                                        }}
-                                                            placeholder="Nhập độ quan trọng" />
-                                                    </FormGroup>
-                                                </Col>
-                                                <Col md="7">
-                                                    <Button color="primary" onClick={this.addDQT.bind(this)}>Thực hiện lưu</Button>{' '}
-                                                    <Button color="danger" onClick={this.toggleNewdoqtModal.bind(this)}>Hủy bỏ</Button>
-                                                </Col>
-                                            </Form>
-
+                                            {(this.state.modalAdd === false) ?
+                                                <div></div>
+                                                :
+                                                <Form className="form-inline">
+                                                    <Col md="5">
+                                                        <FormGroup>
+                                                            <Input value={this.state.newdqt.Tendqt} onChange={(e) => {
+                                                                let { newdqt } = this.state;
+                                                                newdqt.Tendqt = e.target.value;
+                                                                this.setState({ newdqt });
+                                                            }}
+                                                                placeholder="Nhập độ quan trọng" />
+                                                        </FormGroup>
+                                                    </Col>
+                                                    <Col md="7">
+                                                        <Button color="primary" disabled={!(this.state.newdqt.Tendqt.length > 0)} onClick={this.addDQT.bind(this)}>Thực hiện lưu</Button>{' '}
+                                                        <Button color="danger" onClick={this.toggleNewdoqtModal.bind(this)}>Hủy bỏ</Button>
+                                                    </Col>
+                                                </Form>
+                                            }
                                         </Row>
                                     </CardTitle>
 
@@ -360,8 +292,11 @@ class DanhMucDoQuanTrong extends React.Component {
                                             <tr>
                                                 <th>Mã dộ quan trọng</th>
                                                 <th>Độ quan trọng</th>
-
-                                                <th>Thao tác</th>
+                                                {
+                                                    (rules.find(x => x == cn)) ?
+                                                        <th>Thao tác</th>
+                                                        : null
+                                                }
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -372,53 +307,55 @@ class DanhMucDoQuanTrong extends React.Component {
                                                         <tr key={dqt.iddqt}>
                                                             <td>{dqt.iddqt}</td>
                                                             <td>{dqt.tendqt}</td>
+                                                            {
+                                                                (rules.find(x => x == cn)) ?
+
+                                                                    <td>
 
 
-                                                            <td>
+                                                                        <Button color="success" size="sm" className="mr-2" onClick={this.edit.bind(this, dqt.iddqt, dqt.tendqt)}>Chỉnh sửa</Button>
 
+                                                                        <Modal isOpen={this.state.editModal} toggle={this.toggleEditModal.bind(this)}>
+                                                                            <ModalHeader toggle={this.toggleEditModal.bind(this)}>Chỉnh sửa</ModalHeader>
+                                                                            <ModalBody>
+                                                                                <Form>
 
-                                                                <Button color="success" size="sm" className="mr-2" onClick={this.edit.bind(this, dqt.iddqt, dqt.tendqt)}>Edit</Button>
-
-                                                                <Modal isOpen={this.state.editModal} toggle={this.toggleEditModal.bind(this)}>
-                                                                    <ModalHeader toggle={this.toggleEditModal.bind(this)}>Edit</ModalHeader>
-                                                                    <ModalBody>
-                                                                        <Form>
-
-                                                                            <FormGroup>
-                                                                                <Label for="tendqt">Độ quan trọng</Label>
-                                                                                <Input id="tendqt" value={this.state.editData.tendqt} onChange={(e) => {
-                                                                                    let { editData } = this.state;
-                                                                                    editData.tendqt = e.target.value;
-                                                                                    this.setState({ editData });
-                                                                                }} />
-                                                                            </FormGroup>
-                                                                        </Form>
-                                                                    </ModalBody>
-                                                                    <ModalFooter>
-                                                                        <Button color="primary" onClick={this.updateDQT.bind(this)}>Thực hiện lưu</Button>
-                                                                        <Button color="secondary" onClick={this.toggleEditModal.bind(this)}>Hủy bỏ</Button>
-                                                                    </ModalFooter>
-                                                                </Modal>
-                                                                <Button
-                                                                    type="button" className="btn btn-danger btn-sm"
-                                                                    onClick={() => this.handleShowAlert({ id: dqt })}>
-                                                                    Delete
+                                                                                    <FormGroup>
+                                                                                        <Label for="tendqt">Độ quan trọng</Label>
+                                                                                        <Input id="tendqt" value={this.state.editData.tendqt} onChange={(e) => {
+                                                                                            let { editData } = this.state;
+                                                                                            editData.tendqt = e.target.value;
+                                                                                            this.setState({ editData });
+                                                                                        }} />
+                                                                                    </FormGroup>
+                                                                                </Form>
+                                                                            </ModalBody>
+                                                                            <ModalFooter>
+                                                                                <Button color="primary" disabled={!(this.state.editData.tendqt.length > 0)} onClick={this.updateDQT.bind(this)}>Thực hiện lưu</Button>
+                                                                                <Button color="secondary" onClick={this.toggleEditModal.bind(this)}>Hủy bỏ</Button>
+                                                                            </ModalFooter>
+                                                                        </Modal>
+                                                                        <Button
+                                                                            type="button" className="btn btn-danger btn-sm"
+                                                                            onClick={() => this.handleShowAlert({ id: dqt })}>
+                                                                            Xóa
                                                                      </Button>
-                                                                <SweetAlert
-                                                                    show={this.state.showAlert}
+                                                                        <SweetAlert
+                                                                            show={this.state.showAlert}
 
-                                                                    title="Xóa"
-                                                                    html
-                                                                    text={"Bạn có muốn xóa độ quan trọng: " + dqt.tendqt + " không?"}
+                                                                            title="Xóa"
+                                                                            html
+                                                                            text={"Bạn có muốn xóa độ quan trọng: " + dqt.tendqt + " không?"}
 
-                                                                    showCancelButton
-                                                                    onOutsideClick={() => this.setState({ showAlert: false })}
-                                                                    onEscapeKey={() => this.setState({ showAlert: false })}
-                                                                    onCancel={() => this.setState({ showAlert: false })}
-                                                                    onConfirm={() => this.deletedoqt({ iddqt: dqt.iddqt })}
+                                                                            showCancelButton
+                                                                            onOutsideClick={() => this.setState({ showAlert: false })}
+                                                                            onEscapeKey={() => this.setState({ showAlert: false })}
+                                                                            onCancel={() => this.setState({ showAlert: false })}
+                                                                            onConfirm={() => this.deletedoqt({ iddqt: dqt.iddqt })}
 
-                                                                />
-                                                            </td>
+                                                                        />
+                                                                    </td> : null
+                                                            }
 
                                                         </tr>
                                                     )

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices.ComTypes;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -49,13 +50,14 @@ namespace QuanLy.Controllers
          
         }
 
-        [HttpPut("{id}")]
-        public int SuaQuyen(Quyenvb q)
+        [HttpPut("{idvb}/{idnv}")]
+        public int SuaQuyen(Quyenvb q,string idvb,int idnv)
         {
-            Quyenvb qvb = db.Quyenvb.Find(q.Idquyenvb);
-            qvb.Idquyenvb = qvb.Idquyenvb;
-            qvb.Quyen = q.Quyen;
-            db.Entry(qvb).State = EntityState.Modified;
+            var idquyen = (from a in db.Quyenvb where (a.Idnv == idnv && a.Idvb == idvb) select a.Idquyenvb).FirstOrDefault();
+            q.Idquyenvb = idquyen;
+            q.Idvb = idvb;
+            q.Idnv = idnv;
+            db.Entry(q).State = EntityState.Modified;
             db.SaveChanges();
             return 1;
         }

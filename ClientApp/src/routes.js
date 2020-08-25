@@ -17,61 +17,56 @@
 
 */
 import Dashboard from "views/Dashboard.js";
+import Notifications from "views/Notifications.js";
+import Icons from "views/Icons.js";
 
-import DanhMucNhanVien from "components/NhanVien/DanhMucNhanVien";
+
+
+import UserPage from "views/User.js";
+
+import DanhMucNhanVien  from "components/NhanVien/DanhMucNhanVien";
 import DanhMucDonVi from "components/DonVi/DanhMucDonVi";
 import DanhMucDoQuanTrong from "components/DoQuanTrong/DanhMucDoQuanTrong";
 import DanhMucNoiPhatHanh from "components/NoiPhatHanh/DanhMucNoiPhatHanh";
 import DanhMucLoaiVanBan from "components/LoaiVB/DanhMucLoaiVanBan";
 import DanhMucLinhVuc from "components/LinhVuc/DanhMucLinhVuc";
 import DanhMucChucNang from "components/ChucNang/DanhMucChucNang";
-import LayVB from "components/VanBan/LayVB";
+import DanhMucVaiTro from "components/VaiTro/DanhMucVaiTro";
 import AddVB from "components/VanBan/AddVB";
-import Lichlamviecs from "components/Lichlamviec/Lichlamviecs";
-import AddCongViec from "components/CongViec/AddCongViec";
-
-
-
+import LayVB from "components/VanBan/LayVB";
+import CongViec from "components/CongViec/CongViec";
+import XuLyCongViec from "components/CongViec/XuLyCongViec";
 var routes = [
-  
   {
     path: "/dashboard",
     name: "Dashboard",
     icon: "nc-icon nc-bank",
     component: Dashboard,
     layout: "/admin",
-    },
-
-    {
-        path: "/vanban/index",
-        icon: "nc-icon nc-tile-56",
-        name: "Văn bản",
-        component: LayVB,
-        layout: "/admin",
-    },
-    {
-        path: "/vanban/themvb",
-        icon: "nc-icon nc-tile-56",
-        name: "Phát hành Văn bản",
-        component: AddVB,
-        layout: "/admin",
-    },
+  },
   {
-    path: "/ThemCV",
-    name: "Thêm công việc",
-      icon: "nc-icon nc-diamond",
-      component: AddCongViec,
+    path: "/icons",
+    name: "Icons",
+    icon: "nc-icon nc-diamond",
+    component: Icons,
     layout: "/admin",
   },
 
-  
   {
-      path: "/Lichlamviec",
-    name: "Lịch làm việc",
-    icon: "nc-icon nc-tile-56",
-      component: Lichlamviecs,
+    path: "/notifications",
+    name: "Notifications",
+    icon: "nc-icon nc-bell-55",
+    component: Notifications,
     layout: "/admin",
-    },
+  },
+  {
+    path: "/user-page",
+    name: "Thông tin cá nhân",
+    icon: "nc-icon nc-single-02",
+    component: UserPage,
+    layout: "/admin",
+  },
+ 
     {
         path: "/nhanvien/index",
         name: "Nhân Viên",
@@ -82,28 +77,28 @@ var routes = [
     {
         path: "/donvi/index",
         name: "Đơn Vị",
-        icon: "nc-icon nc-tile-56",
+        icon: "nc-icon nc-chart-pie-36",
         component: DanhMucDonVi,
         layout: "/admin",
     },
     {
         path: "/doquantrong/index",
         name: "Độ Quan Trọng",
-        icon: "nc-icon nc-tile-56",
+        icon: "fas fa-exclamation-triangle",
         component: DanhMucDoQuanTrong,
         layout: "/admin",
     },
     {
         path: "/noiphathanh/index",
         name: "Nơi phát hành",
-        icon: "nc-icon nc-tile-56",
+        icon: "nc-icon nc-istanbul",
         component: DanhMucNoiPhatHanh,
         layout: "/admin",
     },
     {
         path: "/loaivanban/index",
         name: "Loại văn bản",
-        icon: "nc-icon nc-tile-56",
+        icon: "far fa-list-alt",
         component: DanhMucLoaiVanBan,
         layout: "/admin",
     },
@@ -117,14 +112,44 @@ var routes = [
     {
         path: "/chucnang/index",
         name: "Chức Năng",
-        icon: "nc-icon nc-tile-56",
+        icon: "fas fa-clipboard-list",
         component: DanhMucChucNang,
         layout: "/admin",
     },
-
-   
-
-   
-
+    {
+        path: "/vaitro/index",
+        name: "Vai Trò",
+        icon: "nc-icon nc-paper",
+        component: DanhMucVaiTro,
+        layout: "/admin",
+    },
+    {
+        path: "/vanban/index",
+        name: "Danh sách văn bản",
+        icon: "far fa-file-alt",
+        component: LayVB,
+        layout: "/admin",
+    },
+    {
+        path: "/vanban/create",
+        name: "Tạo văn bản mới",
+        icon: "fas fa-file-medical",
+        component: AddVB,
+        layout: "/admin",
+    },
+    {
+        path: "/congviec/index",
+        name: "Công việc",
+        icon: "fas fa-file-medical",
+        component: CongViec,
+        layout: "/admin",
+    },
+    {
+        path: "/congviec/xuly",
+        name: "Xử lý công việc",
+        icon: "fas fa-file-medical",
+        component: CongViec,
+        layout: "/admin",
+    },
 ];
 export default routes;

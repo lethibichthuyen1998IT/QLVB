@@ -1,98 +1,123 @@
 ﻿import React, { Component } from "react";
 import axios from "axios";
 import cookie from "js-cookie";
+import {
+    Button,
+    Input, Label, Form, FormGroup, Card,
+    CardHeader,
+    CardBody,
+    CardTitle,
 
-import Error from "components/Error";
+    Alert
+} from "reactstrap";
+
 class Login extends Component {
     constructor(props) {
         super(props);
-        this.state = { username: "", password: "", errors: {} };
+        this.state = { username: "", password: "", nhanvien:[], errors:"" };
+        
+        this.handleForm = this.handleForm.bind(this);
     }
-    handleForm = e => {
-        e.preventDefault();
-        const data = {username : this.state.username, password: this.state.password };
+    componentDidMount() {
 
-        axios
-            .post("/Login/Index", data)
-            .then(res => {
-                cookie.set("token", res.data.access_token);
-                this.props.setLogin(res.data.user);
-                this.props.history.push("/admin/dashboard");
+        axios.get('/nhanviens')
+            .then((res) => this.setState({
+                nhanvien: res.data,
+                errors:'',
+                showAlert: false,
+               
             })
-            .catch(e => this.setState({ errors: e.response.data.errors }));
-    };
-    handleInput = e => {
+
+            );
+    }
+    handleForm = (e) => {
         e.preventDefault();
-        const name = e.target.name;
-        const value = e.target.value;
-        this.setState({ [name]: value });
+        const { nhanvien } = this.state;
+
+        
+            axios.post("/users/authenticate", { USERNAME: this.state.username, PASSWORD: this.state.password })
+                .then(res => {
+                    //cookie.set("token", res.data.access_token);
+                    //this.props.setLogin(res.data.nhanvien);
+                    localStorage.setItem('user', JSON.stringify(res.data));
+                    this.props.history.push("/admin/dashboard");
+                    this.setState({ errors: "" });
+                }).catch(e => { this.setState({ errors: "Sai tài khoản hoặc mật khẩu" }) });
+        
+        
+        
     };
+   
     render() {
+        
+        const { username, password, errors } = this.state;
         return (
-            <div className="flex">
-                <div className="w-1/3" />
-                <div className="w-1/3 mt-10 p-4 bg-white">
-                    <form className="border border-gray-500" onSubmit={this.handleForm}>
-                        <div className="p-4">
-                            <h1 className="text-lg border-b border-gray-500">Ping Here</h1>
-                            <Error
-                                error={
-                                    this.state.errors["result"]
-                                        ? this.state.errors["result"]
-                                        : null
-                                }
-                            />
-                            <div className="mt-4">
-                                <label>username</label>
-                                <input
+            
+            <div className="wrapper bg-info mh-100">
+
+                <div className="d-flex justify-content-center" style={{ paddingTop: '200px' }}>
+                    <Card className="w-25">
+                        <CardHeader className="bg-success text-light">
+                            <CardTitle tag="h3" align="center">Đăng nhập thành viên</CardTitle>
+                        </CardHeader>
+                        <CardBody>
+                            <Form onSubmit={(e) => this.handleForm(e)}>
+                                    {
+                                    (errors) ?
+                                        <Alert color="danger">{errors}</Alert>
+                                        :
+                                        null
+                                    }
+                                <FormGroup className="input-group">
+                                    <div className="input-group-prepend bg-warning" style={{ width:'40px' }}>
+                                        <span className="input-group-text"><i className="fas fa-user"></i></span>
+                                    </div>
+                                  
+                                <Input
+                                    className="form-control"                                   
                                     type="username"
                                     name="username"
-                                    placeholder="Your Username"
-                                    onChange={this.handleInput}
-                                    className="mt-1 p-2 bg-gray-200 rounded border border-gray-400 w-full"
+                                    placeholder="Nhập tài khoản"
+                                    value={username}
+                                    onChange={(e) => this.setState({ username: e.target.value})}
+                                    
                                 />
-                                <Error
-                                    error={
-                                        this.state.errors["username"]
-                                            ? this.state.errors["username"]
-                                            : null
-                                    }
-                                />
-                            </div>
-                            <div className="mt-4">
-                                <label>Password</label>
-                                <input
+
+                            </FormGroup>
+                                <FormGroup className="input-group">
+                                    <div className="input-group-prepend bg-warning" style={{ width: '40px' }}>
+                                        <span className="input-group-text"><i className="fas fa-key"></i></span>
+                                    </div>
+                                <Input
+                                    className="form-control"
+                                    required
                                     type="password"
                                     name="password"
-                                    onChange={this.handleInput}
-                                    placeholder="Super Duper Secret Password"
-                                    className="mt-1 p-2 bg-gray-200 rounded border border-gray-400 w-full"
+                                    value={password}
+                                    onChange={(e) => this.setState({ password: e.target.value })}
+                                    placeholder="**********"
+                                   
                                 />
-                                <Error
-                                    error={
-                                        this.state.errors["password"]
-                                            ? this.state.errors["password"]
-                                            : null
-                                    }
-                                />
-                            </div>
-                            <div className="mt-4">
-                                <input
+
+                            </FormGroup>
+                            <FormGroup className="mt-4">
+                                <Button block
                                     type="submit"
-                                    className="mt-1 p-2 border border-gray-400 rounded cursor-pointer bg-purple-600 text-white"
-                                />
-                            </div>
-                        </div>
-                    </form>
+                                    color="success"
+                                    disabled={!(password.length > 0 && username.length > 0)}>
+                                    Đăng nhập
+                                </Button>
+                            </FormGroup>
+                        
+                            </Form>
+                        </CardBody>
+                    </Card>
                 </div>
-            </div>
+              
+                </div>
+            
         );
     }
 }
 
-const mapDispatchToProps = dispatch => {
-    return {
-        setLogin: user => dispatch({ type: "SET_LOGIN", payload: user })
-    };
-};
 export default Login;

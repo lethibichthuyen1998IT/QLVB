@@ -39,6 +39,10 @@ class DanhMucLoaiVanBan extends React.Component {
 
             },
 
+            chucnang: [],
+            quyen: [],
+            nv: [],
+
             modalAdd: false,
             editModal: false,
             valueSearch: ''
@@ -57,6 +61,24 @@ class DanhMucLoaiVanBan extends React.Component {
 
     //list
     componentDidMount() {
+        const nvs = JSON.parse(localStorage.getItem('user'));
+        this.setState({
+            nv: nvs
+        });
+        axios.get('/quyens')
+            .then((res) => this.setState({
+                quyen: res.data,
+
+            })
+
+            );
+        axios.get('/chucnangs')
+            .then((res) => this.setState({
+                chucnang: res.data,
+
+            })
+
+            );
 
         axios.get('/loaivanbans')
             .then((res) => this.setState({
@@ -196,115 +218,20 @@ class DanhMucLoaiVanBan extends React.Component {
     render() {
 
         const { loaivanban } = this.state;
-        if (this.state.modalAdd === false) return (
-            <>
+        //Quyền
+        const { nv, quyen, chucnang } = this.state;
+        let rules = [];
+        quyen.forEach((e) => {
+            if (e.idvaitro.trim() === nv.idvaitro.trim())
+                rules.push(e.idcn);
+        });
+        const name = "Quản lý loại văn bản";
+        let cn = [];
+        chucnang.forEach((x) => {
+            if (x.tencn.toLowerCase() === name.toLowerCase())
+                cn.push(x.idcn);
+        });
 
-                <div className="content">
-
-                    <Row>
-                        <Col md="12">
-                            <Card>
-                                <CardHeader>
-
-                                    <CardTitle tag="h4">Loại văn bản</CardTitle>
-                                    <CardTitle>
-                                        <Row md="12">
-                                            <Col md="4">
-                                                <Button color="primary" onClick={this.toggleNewloaivanbanModal.bind(this)}>{(this.state.modalAdd) ? 'Đóng' : 'Thêm thể loại'}</Button>
-                                            </Col>
-                                            <Col md="4">
-                                                <Search
-                                                    valueSearch={this.state.valueSearch}
-                                                    handleSearch={this.handleSearch} />
-                                            </Col>
-
-
-                                        </Row>
-                                    </CardTitle>
-
-
-                                </CardHeader>
-                                <CardBody>
-                                    <Table className="table table-hover">
-                                        <thead className="text-primary">
-                                            <tr>
-                                                <th>Mã</th>
-                                                <th>Loại văn bản</th>
-
-                                                <th>Thao tác</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {
-                                                loaivanban.map((loai) => {
-                                                    return (
-
-                                                        <tr key={loai.idloai}>
-                                                            <td>{loai.maloai}</td>
-                                                            <td>{loai.tenloai}</td>
-
-
-                                                            <td>
-
-
-                                                                <Button color="success" size="sm" className="mr-2" onClick={this.edit.bind(this, loai.idloai, loai.tenloai)}>Edit</Button>
-
-                                                                <Modal isOpen={this.state.editModal} toggle={this.toggleEditModal.bind(this)}>
-                                                                    <ModalHeader toggle={this.toggleEditModal.bind(this)}>Edit</ModalHeader>
-                                                                    <ModalBody>
-                                                                        <Form>
-
-                                                                            <FormGroup>
-                                                                                <Label for="tenloai">Loại văn bản</Label>
-                                                                                <Input id="tenloai" value={this.state.editData.tenloai} onChange={(e) => {
-                                                                                    let { editData } = this.state;
-                                                                                    editData.tenloai = e.target.value;
-                                                                                    this.setState({ editData });
-                                                                                }} />
-                                                                            </FormGroup>
-                                                                        </Form>
-                                                                    </ModalBody>
-                                                                    <ModalFooter>
-                                                                        <Button color="primary" onClick={this.updateloai.bind(this)}>Thực hiện lưu</Button>
-                                                                        <Button color="secondary" onClick={this.toggleEditModal.bind(this)}>Hủy bỏ</Button>
-                                                                    </ModalFooter>
-                                                                </Modal>
-                                                                <Button
-                                                                    type="button" className="btn btn-danger btn-sm"
-                                                                    onClick={() => this.handleShowAlert({ id: loai })}>
-                                                                    Delete
-                                                                     </Button>
-                                                                <SweetAlert
-                                                                    show={this.state.showAlert}
-
-                                                                    title="Xóa"
-                                                                    html
-                                                                    text={"Bạn có muốn xóa loại văn bản " + loai.tenloai + " không?"}
-
-                                                                    showCancelButton
-                                                                    onOutsideClick={() => this.setState({ showAlert: false })}
-                                                                    onEscapeKey={() => this.setState({ showAlert: false })}
-                                                                    onCancel={() => this.setState({ showAlert: false })}
-                                                                    onConfirm={() => this.deleteloaivanban({ idloai: loai.idloai })}
-
-                                                                />
-                                                            </td>
-
-                                                        </tr>
-                                                    )
-                                                })
-                                            }
-
-                                        </tbody>
-                                    </Table>
-                                </CardBody>
-                            </Card>
-                        </Col>
-
-                    </Row>
-                </div>
-            </>
-        );
         return (
             <>
 
@@ -318,9 +245,12 @@ class DanhMucLoaiVanBan extends React.Component {
                                     <CardTitle tag="h4">Loại văn bản</CardTitle>
                                     <CardTitle>
                                         <Row md="12">
-                                            <Col md="4">
-                                                <Button color="primary" onClick={this.toggleNewloaivanbanModal.bind(this)}>{(this.state.modalAdd) ? 'Đóng' : 'Thêm thể loại'}</Button>
-                                            </Col>
+                                            {
+                                                (rules.find(x => x == cn)) ?
+                                                    <Col md="4">
+                                                        <Button color="primary" onClick={this.toggleNewloaivanbanModal.bind(this)}>{(this.state.modalAdd) ? 'Đóng' : 'Thêm thể loại'}</Button>
+                                                    </Col> : null
+                                            }
                                             <Col md="4">
                                                 <Search
                                                     valueSearch={this.state.valueSearch}
@@ -330,24 +260,26 @@ class DanhMucLoaiVanBan extends React.Component {
 
                                         </Row>
                                         <Row md="12">
-
-                                            <Form className="form-inline">
-                                                <Col md="5">
-                                                    <FormGroup>
-                                                        <Input value={this.state.newloai.Tenloai} onChange={(e) => {
-                                                            let { newloai } = this.state;
-                                                            newloai.Tenloai = e.target.value;
-                                                            this.setState({ newloai });
-                                                        }}
-                                                            placeholder="Nhập loại văn bản" />
-                                                    </FormGroup>
-                                                </Col>
-                                                <Col md="7">
-                                                    <Button color="primary" onClick={this.addloai.bind(this)}>Thực hiện lưu</Button>{' '}
-                                                    <Button color="danger" onClick={this.toggleNewloaivanbanModal.bind(this)}>Hủy bỏ</Button>
-                                                </Col>
-                                            </Form>
-
+                                            {(this.state.modalAdd === false) ?
+                                                <div></div>
+                                                :
+                                                <Form className="form-inline">
+                                                    <Col md="5">
+                                                        <FormGroup>
+                                                            <Input value={this.state.newloai.Tenloai} onChange={(e) => {
+                                                                let { newloai } = this.state;
+                                                                newloai.Tenloai = e.target.value;
+                                                                this.setState({ newloai });
+                                                            }}
+                                                                placeholder="Nhập loại văn bản" />
+                                                        </FormGroup>
+                                                    </Col>
+                                                    <Col md="7">
+                                                        <Button color="primary" disabled={!(this.state.newloai.Tenloai.length > 0)} onClick={this.addloai.bind(this)}>Thực hiện lưu</Button>{' '}
+                                                        <Button color="danger" onClick={this.toggleNewloaivanbanModal.bind(this)}>Hủy bỏ</Button>
+                                                    </Col>
+                                                </Form>
+                                            }
                                         </Row>
 
                                     </CardTitle>
@@ -360,8 +292,10 @@ class DanhMucLoaiVanBan extends React.Component {
                                             <tr>
                                                 <th>Mã</th>
                                                 <th>Loại văn bản</th>
-
-                                                <th>Thao tác</th>
+                                                {
+                                                    (rules.find(x => x == cn)) ?
+                                                        <th>Thao tác</th> : null
+                                                }
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -373,53 +307,55 @@ class DanhMucLoaiVanBan extends React.Component {
                                                             <td>{loai.maloai}</td>
                                                             <td>{loai.tenloai}</td>
 
+                                                            {
+                                                                (rules.find(x => x == cn)) ?
+                                                                    <td>
 
-                                                            <td>
 
+                                                                        <Button color="success" size="sm" className="mr-2" onClick={this.edit.bind(this, loai.idloai, loai.tenloai)}>Chỉnh sửa</Button>
 
-                                                                <Button color="success" size="sm" className="mr-2" onClick={this.edit.bind(this, loai.idloai, loai.tenloai)}>Edit</Button>
+                                                                        <Modal isOpen={this.state.editModal} toggle={this.toggleEditModal.bind(this)}>
+                                                                            <ModalHeader toggle={this.toggleEditModal.bind(this)}>Chỉnh sửa</ModalHeader>
+                                                                            <ModalBody>
+                                                                                <Form>
 
-                                                                <Modal isOpen={this.state.editModal} toggle={this.toggleEditModal.bind(this)}>
-                                                                    <ModalHeader toggle={this.toggleEditModal.bind(this)}>Edit</ModalHeader>
-                                                                    <ModalBody>
-                                                                        <Form>
-
-                                                                            <FormGroup>
-                                                                                <Label for="tenloai">Loại văn bản</Label>
-                                                                                <Input id="tenloai" value={this.state.editData.tenloai} onChange={(e) => {
-                                                                                    let { editData } = this.state;
-                                                                                    editData.tenloai = e.target.value;
-                                                                                    this.setState({ editData });
-                                                                                }} />
-                                                                            </FormGroup>
-                                                                        </Form>
-                                                                    </ModalBody>
-                                                                    <ModalFooter>
-                                                                        <Button color="primary" onClick={this.updateloai.bind(this)}>Thực hiện lưu</Button>
-                                                                        <Button color="secondary" onClick={this.toggleEditModal.bind(this)}>Hủy bỏ</Button>
-                                                                    </ModalFooter>
-                                                                </Modal>
-                                                                <Button
-                                                                    type="button" className="btn btn-danger btn-sm"
-                                                                    onClick={() => this.handleShowAlert({ id: loai })}>
-                                                                    Delete
+                                                                                    <FormGroup>
+                                                                                        <Label for="tenloai">Loại văn bản</Label>
+                                                                                        <Input id="tenloai" value={this.state.editData.tenloai} onChange={(e) => {
+                                                                                            let { editData } = this.state;
+                                                                                            editData.tenloai = e.target.value;
+                                                                                            this.setState({ editData });
+                                                                                        }} />
+                                                                                    </FormGroup>
+                                                                                </Form>
+                                                                            </ModalBody>
+                                                                            <ModalFooter>
+                                                                                <Button color="primary" disabled={!(this.state.editData.tenloai.length > 0)} onClick={this.updateloai.bind(this)}>Thực hiện lưu</Button>
+                                                                                <Button color="secondary" onClick={this.toggleEditModal.bind(this)}>Hủy bỏ</Button>
+                                                                            </ModalFooter>
+                                                                        </Modal>
+                                                                        <Button
+                                                                            type="button" className="btn btn-danger btn-sm"
+                                                                            onClick={() => this.handleShowAlert({ id: loai })}>
+                                                                            Xóa
                                                                      </Button>
-                                                                <SweetAlert
-                                                                    show={this.state.showAlert}
+                                                                        <SweetAlert
+                                                                            show={this.state.showAlert}
 
-                                                                    title="Xóa"
-                                                                    html
-                                                                    text={"Bạn có muốn xóa loại văn bản " + loai.tenloai + " không?"}
+                                                                            title="Xóa"
+                                                                            html
+                                                                            text={"Bạn có muốn xóa loại văn bản " + loai.tenloai + " không?"}
 
-                                                                    showCancelButton
-                                                                    onOutsideClick={() => this.setState({ showAlert: false })}
-                                                                    onEscapeKey={() => this.setState({ showAlert: false })}
-                                                                    onCancel={() => this.setState({ showAlert: false })}
-                                                                    onConfirm={() => this.deleteloaivanban({ idloai: loai.idloai })}
+                                                                            showCancelButton
+                                                                            onOutsideClick={() => this.setState({ showAlert: false })}
+                                                                            onEscapeKey={() => this.setState({ showAlert: false })}
+                                                                            onCancel={() => this.setState({ showAlert: false })}
+                                                                            onConfirm={() => this.deleteloaivanban({ idloai: loai.idloai })}
 
-                                                                />
-                                                            </td>
-
+                                                                        />
+                                                                    </td>
+                                                                    : null
+}
                                                         </tr>
                                                     )
                                                 })

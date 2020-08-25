@@ -30,7 +30,7 @@ class AddVB extends React.Component {
                 ngaygoi: date,
                 ngaynhan: '',
                 nguoiky: '',
-                idnv: 14
+                
             },
             quyenvb:
             {
@@ -47,7 +47,8 @@ class AddVB extends React.Component {
             nv: [],
             moinguoi:[],
             optionnv: [],
-            optiondv:[],
+            optiondv: [],
+            user: JSON.parse(localStorage.getItem('user')),
             selectedFile: '',
             progress: 0,
             status: '',
@@ -64,7 +65,7 @@ class AddVB extends React.Component {
     }
     //load du lieu
     componentDidMount() {
-
+     
         axios.get('/donvis')
             .then((res) =>
                 this.setState({
@@ -119,7 +120,7 @@ class AddVB extends React.Component {
             NGAYGOI: this.state.newvb.ngaygoi,
             NGAYNHAN: this.state.newvb.ngaynhan,
             NGUOIKY: this.state.newvb.nguoiky,
-            IDNV: this.state.newvb.idnv
+            IDNV: this.state.user.idnv
         }).then((response) => {
 
             if (this.state.planet == "donvi") {
@@ -302,7 +303,7 @@ class AddVB extends React.Component {
 
     //hien thi
     render() {
-
+      
         const { selected, planet,select } = this.state;
         if (planet == "donvi" && select) {
             selected.forEach(
@@ -404,7 +405,7 @@ class AddVB extends React.Component {
                             <td colSpan="2">
                                 <Label for="trichyeu">Trích yếu: </Label>
                                 <div className="col-md-9">
-                                    <Input required className="form-control" type="textarea" id="trichyeu" value={this.state.newvb.trichyeu} onChange={(e) => {
+                                    <Input className="form-control" type="textarea" id="trichyeu" value={this.state.newvb.trichyeu} onChange={(e) => {
                             let { newvb } = this.state;
                             newvb.trichyeu = e.target.value;
                             this.setState({ newvb });

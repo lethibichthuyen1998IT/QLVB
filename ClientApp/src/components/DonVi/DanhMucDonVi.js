@@ -37,12 +37,15 @@ class DanhMucDonVi extends React.Component {
                 iddonvi:0,
                 tendonvi: ''
 
-            },
-           
+            },         
+            chucnang: [],
+            quyen: [],
+            nv: [],
+
             modalAdd: false,
             editModal: false,
             valueSearch: ''
-
+            
         };
 
         // This binding is necessary to make "this" work in the callback  
@@ -51,12 +54,31 @@ class DanhMucDonVi extends React.Component {
         this._refresh = this._refresh.bind(this);
         this.handleShowAlert = this.handleShowAlert.bind(this);
         this.deleteDonVi = this.deleteDonVi.bind(this);
-      
+       
     }
 
 
     //list
     componentDidMount() {
+
+        const nvs = JSON.parse(localStorage.getItem('user'));
+        this.setState({
+            nv:nvs
+        });
+        axios.get('/quyens')
+            .then((res) => this.setState({
+                quyen: res.data,
+
+            })
+
+            );
+        axios.get('/chucnangs')
+            .then((res) => this.setState({
+                chucnang: res.data,
+
+            })
+
+            );
 
         axios.get('/donvis')
             .then((res) => this.setState({
@@ -64,12 +86,13 @@ class DanhMucDonVi extends React.Component {
                 source: res.data,
                 showAlert: false
             })
-
             );
-
-     
-
+        
+      
+       
     }
+
+   
 
     //add
     toggleNewDonViModal() {
@@ -93,10 +116,6 @@ class DanhMucDonVi extends React.Component {
                     modalAdd: false
                 });
                 this._refresh();
-            })
-            .catch((error) => {
-                console.log(error.response);
-                alert(error);
             });
 
     }
@@ -197,115 +216,22 @@ class DanhMucDonVi extends React.Component {
     render() {
 
         const { donvi } = this.state;
-        if (this.state.modalAdd === false) return (
-            <>
-
-                <div className="content">
-
-                    <Row>
-                        <Col md="12">
-                            <Card>
-                                <CardHeader>
-
-                                    <CardTitle tag="h4">Đơn vị</CardTitle>
-                                    <CardTitle>
-                                        <Row md="12">
-                                            <Col md="4">
-                                                <Button color="primary" onClick={this.toggleNewDonViModal.bind(this)}>{(this.state.modalAdd) ? 'Đóng' : 'Thêm đơn vị'}</Button>
-                                            </Col>
-                                            <Col md="4">
-                                                <Search
-                                                    valueSearch={this.state.valueSearch}
-                                                    handleSearch={this.handleSearch} />
-                                            </Col>
-
-
-                                        </Row>
-                                    </CardTitle>
-                                  
-
-                                </CardHeader>
-                                <CardBody>
-                                    <Table className="table table-hover">
-                                        <thead className="text-primary">
-                                            <tr>
-                                                <th>Mã đơn vị</th>
-                                                <th>Tên đơn vị</th>
-
-                                                <th>Thao tác</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {
-                                                donvi.map((dv) => {
-                                                    return (
-
-                                                        <tr key={dv.iddonvi}>
-                                                            <td>{dv.madonvi}</td>
-                                                            <td>{dv.tendonvi}</td>
-
-
-                                                            <td>
-
-
-                                                                <Button color="success" size="sm" className="mr-2" onClick={this.edit.bind(this, dv.iddonvi, dv.tendonvi)}>Edit</Button>
-
-                                                                <Modal isOpen={this.state.editModal} toggle={this.toggleEditModal.bind(this)}>
-                                                                    <ModalHeader toggle={this.toggleEditModal.bind(this)}>Edit</ModalHeader>
-                                                                    <ModalBody>
-                                                                        <Form>
-
-                                                                            <FormGroup>
-                                                                                <Label for="tendonvi">Tên đơn vị</Label>
-                                                                                <Input id="tendonvi" value={this.state.editData.tendonvi} onChange={(e) => {
-                                                                                    let { editData } = this.state;
-                                                                                    editData.tendonvi = e.target.value;
-                                                                                    this.setState({ editData });
-                                                                                }} />
-                                                                            </FormGroup>
-                                                                        </Form>
-                                                                    </ModalBody>
-                                                                    <ModalFooter>
-                                                                        <Button color="primary" onClick={this.updateDV.bind(this)}>Thực hiện lưu</Button>
-                                                                        <Button color="secondary" onClick={this.toggleEditModal.bind(this)}>Hủy bỏ</Button>
-                                                                    </ModalFooter>
-                                                                </Modal>
-                                                                <Button
-                                                                    type="button" className="btn btn-danger btn-sm"
-                                                                    onClick={() => this.handleShowAlert({ id: dv })}>
-                                                                    Delete
-                                                                     </Button>
-                                                                <SweetAlert
-                                                                    show={this.state.showAlert}
-
-                                                                    title="Xóa"
-                                                                    html
-                                                                    text={"Bạn có muốn xóa đơn vị " + dv.tendonvi + " không?"}
-
-                                                                    showCancelButton
-                                                                    onOutsideClick={() => this.setState({ showAlert: false })}
-                                                                    onEscapeKey={() => this.setState({ showAlert: false })}
-                                                                    onCancel={() => this.setState({ showAlert: false })}
-                                                                    onConfirm={() => this.deleteDonVi({ iddonvi: dv.iddonvi })}
-
-                                                                />
-                                                            </td>
-
-                                                        </tr>
-                                                    )
-                                                })
-                                            }
-
-                                        </tbody>
-                                    </Table>
-                                </CardBody>
-                            </Card>
-                        </Col>
-
-                    </Row>
-                </div>
-            </>
-            );
+        //Quyền
+        const { nv, quyen, chucnang } = this.state;
+        let rules = [];
+        quyen.forEach((e) => {
+            if (e.idvaitro.trim() === nv.idvaitro.trim())
+                rules.push(e.idcn);
+        });
+        const name = "Quản lý đơn vị";
+        let cn = [];
+        chucnang.forEach((x) => {
+            if (x.tencn.toLowerCase() === name.toLowerCase())
+                cn.push(x.idcn);
+        });
+        
+        
+        
         return (
             <>
 
@@ -319,9 +245,13 @@ class DanhMucDonVi extends React.Component {
                                     <CardTitle tag="h4">Đơn vị</CardTitle>
                                     <CardTitle>
                                         <Row md="12">
-                                            <Col md="4">
-                                                <Button color="primary" onClick={this.toggleNewDonViModal.bind(this)}>{(this.state.modalAdd) ? 'Đóng' : 'Thêm đơn vị'}</Button>
-                                            </Col>
+                                            {
+                                                (rules.find(x => x == cn)) ?
+                                                <Col md="4">
+                                                    <Button color="primary" onClick={this.toggleNewDonViModal.bind(this)}>{(this.state.modalAdd) ? 'Đóng' : 'Thêm đơn vị'}</Button>
+                                                </Col>
+                                                : null
+                                            }
                                             <Col md="4">
                                                 <Search
                                                     valueSearch={this.state.valueSearch}
@@ -331,23 +261,26 @@ class DanhMucDonVi extends React.Component {
 
                                         </Row>
                                         <Row md="12">
-                                           
-                                            <Form className="form-inline"> 
-                                                <Col md="5">
-                                                    <FormGroup>                                              
-                                                        <Input value={this.state.newdv.Tendonvi} onChange={(e) => {
-                                                               let { newdv } = this.state;
-                                                               newdv.Tendonvi = e.target.value;
-                                                               this.setState({ newdv });}}
+                                            {(this.state.modalAdd === false) ?
+                                                <div></div>
+                                                :
+                                                <Form className="form-inline">
+                                                    <Col md="5">
+                                                        <FormGroup>
+                                                            <Input value={this.state.newdv.Tendonvi} onChange={(e) => {
+                                                                let { newdv } = this.state;
+                                                                newdv.Tendonvi = e.target.value;
+                                                                this.setState({ newdv });
+                                                            }}
                                                                 placeholder="Nhập tên đơn vị" />
-                                                    </FormGroup> 
-                                                      </Col>
+                                                        </FormGroup>
+                                                    </Col>
                                                     <Col md="7">
-                                                        <Button color="primary" onClick={this.addDV.bind(this)}>Thực hiện lưu</Button>{' '}
+                                                        <Button color="primary" disabled={!(this.state.newdv.Tendonvi.length > 0)} onClick={this.addDV.bind(this)}>Thực hiện lưu</Button>{' '}
                                                         <Button color="danger" onClick={this.toggleNewDonViModal.bind(this)}>Hủy bỏ</Button>
-                                                </Col>
-                                            </Form>
-                                                                                   
+                                                    </Col>
+                                                </Form>
+                                            }                                   
                                         </Row>
                                       
                                     </CardTitle>                                      
@@ -360,8 +293,12 @@ class DanhMucDonVi extends React.Component {
                                             <tr>
                                                 <th>Mã đơn vị</th>
                                                 <th>Tên đơn vị</th>
-                                              
-                                                <th>Thao tác</th>
+                                                {
+
+                                                    (rules.find(x => x == cn)) ?
+                                                        <th>Thao tác</th>
+                                                        : null
+                                                }
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -373,53 +310,55 @@ class DanhMucDonVi extends React.Component {
                                                             <td>{dv.madonvi}</td>
                                                             <td>{dv.tendonvi}</td>
                                                            
-                                                         
-                                                            <td>
+                                                            {
+                                                                (rules.find(x => x == cn)) ?
+                                                                    <td>
 
 
-                                                                <Button color="success" size="sm" className="mr-2" onClick={this.edit.bind(this, dv.iddonvi, dv.tendonvi)}>Edit</Button>
+                                                                        <Button color="success" size="sm" className="mr-2" onClick={this.edit.bind(this, dv.iddonvi, dv.tendonvi)}>Chỉnh sửa</Button>
 
-                                                                <Modal isOpen={this.state.editModal} toggle={this.toggleEditModal.bind(this)}>
-                                                                    <ModalHeader toggle={this.toggleEditModal.bind(this)}>Edit</ModalHeader>
-                                                                    <ModalBody>
-                                                                        <Form>
-                                                                           
-                                                                            <FormGroup>
-                                                                                <Label for="tendonvi">Tên đơn vị</Label>
-                                                                                <Input id="tendonvi" value={this.state.editData.tendonvi} onChange={(e) => {
-                                                                                    let { editData } = this.state;
-                                                                                    editData.tendonvi = e.target.value;
-                                                                                    this.setState({ editData });
-                                                                                }} />
-                                                                            </FormGroup>
-                                                                        </Form>
-                                                                    </ModalBody>
-                                                                    <ModalFooter>
-                                                                        <Button color="primary" onClick={this.updateDV.bind(this)}>Thực hiện lưu</Button>
-                                                                        <Button color="secondary" onClick={this.toggleEditModal.bind(this)}>Hủy bỏ</Button>
-                                                                    </ModalFooter>
-                                                                </Modal>
-                                                                <Button
-                                                                    type="button" className="btn btn-danger btn-sm"
-                                                                    onClick={() => this.handleShowAlert({ id: dv })}>
-                                                                    Delete
+                                                                        <Modal isOpen={this.state.editModal} toggle={this.toggleEditModal.bind(this)}>
+                                                                            <ModalHeader toggle={this.toggleEditModal.bind(this)}>Chỉnh sửa</ModalHeader>
+                                                                            <ModalBody>
+                                                                                <Form>
+
+                                                                                    <FormGroup>
+                                                                                        <Label for="tendonvi">Tên đơn vị</Label>
+                                                                                        <Input id="tendonvi" value={this.state.editData.tendonvi} onChange={(e) => {
+                                                                                            let { editData } = this.state;
+                                                                                            editData.tendonvi = e.target.value;
+                                                                                            this.setState({ editData });
+                                                                                        }} />
+                                                                                    </FormGroup>
+                                                                                </Form>
+                                                                            </ModalBody>
+                                                                            <ModalFooter>
+                                                                                <Button color="primary" disabled={!(this.state.editData.tendonvi.length > 0)} onClick={this.updateDV.bind(this)}>Thực hiện lưu</Button>
+                                                                                <Button color="secondary" onClick={this.toggleEditModal.bind(this)}>Hủy bỏ</Button>
+                                                                            </ModalFooter>
+                                                                        </Modal>
+                                                                        <Button
+                                                                            type="button" className="btn btn-danger btn-sm"
+                                                                            onClick={() => this.handleShowAlert({ id: dv })}>
+                                                                            Xóa
                                                                      </Button>
-                                                                <SweetAlert
-                                                                    show={this.state.showAlert}
+                                                                        <SweetAlert
+                                                                            show={this.state.showAlert}
 
-                                                                    title="Xóa"
-                                                                    html
-                                                                    text={"Bạn có muốn xóa đơn vị " + dv.tendonvi + " không?"}
+                                                                            title="Xóa"
+                                                                            html
+                                                                            text={"Bạn có muốn xóa đơn vị " + dv.tendonvi + " không?"}
 
-                                                                    showCancelButton
-                                                                    onOutsideClick={() => this.setState({ showAlert: false })}
-                                                                    onEscapeKey={() => this.setState({ showAlert: false })}
-                                                                    onCancel={() => this.setState({ showAlert: false })}
-                                                                    onConfirm={() => this.deleteDonVi({ iddonvi: dv.iddonvi })}
+                                                                            showCancelButton
+                                                                            onOutsideClick={() => this.setState({ showAlert: false })}
+                                                                            onEscapeKey={() => this.setState({ showAlert: false })}
+                                                                            onCancel={() => this.setState({ showAlert: false })}
+                                                                            onConfirm={() => this.deleteDonVi({ iddonvi: dv.iddonvi })}
 
-                                                                />
-                                                            </td>
-
+                                                                        />
+                                                                    </td>
+                                                                    : null
+                                                                    }
                                                         </tr>
                                                     )
                                                 })

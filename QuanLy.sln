@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30225.117
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuanLy", "QuanLy.csproj", "{141A85B6-C310-4A91-AF8F-BF8CE1BECA8C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QuanLy", "QuanLy.csproj", "{141A85B6-C310-4A91-AF8F-BF8CE1BECA8C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuanLyVanBan", "..\..\QLVB_OFF\QuanLyVanBan\QuanLyVanBan.csproj", "{A0003D02-2286-4566-9DA6-E0C6B5B6291A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{141A85B6-C310-4A91-AF8F-BF8CE1BECA8C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{141A85B6-C310-4A91-AF8F-BF8CE1BECA8C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{141A85B6-C310-4A91-AF8F-BF8CE1BECA8C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A0003D02-2286-4566-9DA6-E0C6B5B6291A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A0003D02-2286-4566-9DA6-E0C6B5B6291A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A0003D02-2286-4566-9DA6-E0C6B5B6291A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A0003D02-2286-4566-9DA6-E0C6B5B6291A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

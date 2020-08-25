@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 
 namespace QuanLy.DTO
 {
-    // ny
     public class LoginDTO
     {
         [Required]

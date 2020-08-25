@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using QuanLy.DTO;
 using QuanLy.Models;
 
 namespace QuanLy.Controllers
@@ -212,7 +213,9 @@ namespace QuanLy.Controllers
             try
             {
                 Vanban vb = db.Vanban.Find(id);
+             
                 db.Vanban.Remove(vb);
+               
                 db.SaveChanges();
                 return 1;
             }

@@ -33,7 +33,7 @@ class Dashboard extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      backgroundColor: "black",
+      backgroundColor: "white",
       activeColor: "info",
     };
     this.mainPanel = React.createRef();
@@ -85,10 +85,7 @@ class Dashboard extends React.Component {
             })}
                     
                     
-                   
-                   
-                    
-                 
+                      
                     
                     
           </Switch>

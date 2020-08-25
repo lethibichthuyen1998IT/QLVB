@@ -53,6 +53,39 @@ namespace QuanLy.Controllers
             }
         }
 
+        [HttpGet("nhanvienxoa")]
+        public IEnumerable<NhanVienDTO> NhanVienXoa()
+        {
+            try
+            {
+                var nv = from a in tb.Nhanvien
+                         join b in tb.Vaitro on a.Idvaitro equals b.Idvaitro
+                         join c in tb.Donvi on a.Iddonvi equals c.Iddonvi
+                         where a.Daxoa == true
+                         select new NhanVienDTO()
+                         {
+                             Idnv = a.Idnv,
+                             Iddonvi = a.Iddonvi,
+                             Idvaitro = b.Idvaitro,
+                             Manv = a.Manv,
+                             Hoten = a.Hoten,
+                             Sdt = a.Sdt,
+                             Ngaysinh = a.Ngaysinh,
+                             Diachi = a.Diachi,
+                             Username = a.Username,
+                             Password = a.Password,
+                             Daxoa = a.Daxoa,
+                             Tendonvi = c.Tendonvi,
+                             Tenvaitro = b.Tenvaitro
+                         };
+                return nv.ToList();
+            }
+            catch (DbUpdateException)
+            {
+                throw;
+            }
+        }
+
         [HttpPost]
         public int Create([FromBody]Nhanvien nv)
         {
@@ -82,6 +115,7 @@ namespace QuanLy.Controllers
         }
 
         [HttpPut("{id}")]
+
         public int Edit(Nhanvien employee)
         {
             Nhanvien nv = tb.Nhanvien.Find(employee.Idnv);

@@ -38,7 +38,9 @@ class  DanhMucLinhVuc extends React.Component {
                 tenlv: ''
 
             },
-
+            chucnang: [],
+            quyen: [],
+            nv: [],
             modalAdd: false,
             editModal: false,
             valueSearch: ''
@@ -57,6 +59,24 @@ class  DanhMucLinhVuc extends React.Component {
 
     //list
     componentDidMount() {
+        const nvs = JSON.parse(localStorage.getItem('user'));
+        this.setState({
+            nv: nvs
+        });
+        axios.get('/quyens')
+            .then((res) => this.setState({
+                quyen: res.data,
+
+            })
+
+            );
+        axios.get('/chucnangs')
+            .then((res) => this.setState({
+                chucnang: res.data,
+
+            })
+
+            );
 
         axios.get('/linhvucs')
             .then((res) => this.setState({
@@ -197,115 +217,20 @@ class  DanhMucLinhVuc extends React.Component {
     render() {
 
         const { linhvuc } = this.state;
-        if (this.state.modalAdd === false) return (
-            <>
-
-                <div className="content">
-
-                    <Row>
-                        <Col md="12">
-                            <Card>
-                                <CardHeader>
-
-                                    <CardTitle tag="h4">Lĩnh vực</CardTitle>
-                                    <CardTitle>
-                                        <Row md="12">
-                                            <Col md="4">
-                                                <Button color="primary" onClick={this.toggleNewlinhvucModal.bind(this)}>{(this.state.modalAdd) ? 'Đóng' : 'Thêm lĩnh vực'}</Button>
-                                            </Col>
-                                            <Col md="4">
-                                                <Search
-                                                    valueSearch={this.state.valueSearch}
-                                                    handleSearch={this.handleSearch} />
-                                            </Col>
-
-
-                                        </Row>
-                                    </CardTitle>
-
-
-                                </CardHeader>
-                                <CardBody>
-                                    <Table className="table table-hover">
-                                        <thead className="text-primary">
-                                            <tr>
-                                                <th>Mã</th>
-                                                <th>Lĩnh vực</th>
-
-                                                <th>Thao tác</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {
-                                                linhvuc.map((lv) => {
-                                                    return (
-
-                                                        <tr key={lv.idlv}>
-                                                            <td>{lv.idlv}</td>
-                                                            <td>{lv.tenlv}</td>
-
-
-                                                            <td>
-
-
-                                                                <Button color="success" size="sm" className="mr-2" onClick={this.edit.bind(this, lv.idlv, lv.tenlv)}>Edit</Button>
-
-                                                                <Modal isOpen={this.state.editModal} toggle={this.toggleEditModal.bind(this)}>
-                                                                    <ModalHeader toggle={this.toggleEditModal.bind(this)}>Edit</ModalHeader>
-                                                                    <ModalBody>
-                                                                        <Form>
-
-                                                                            <FormGroup>
-                                                                                <Label for="tenlv">Lĩnh vực</Label>
-                                                                                <Input id="tenlv" value={this.state.editData.tenlv} onChange={(e) => {
-                                                                                    let { editData } = this.state;
-                                                                                    editData.tenlv = e.target.value;
-                                                                                    this.setState({ editData });
-                                                                                }} />
-                                                                            </FormGroup>
-                                                                        </Form>
-                                                                    </ModalBody>
-                                                                    <ModalFooter>
-                                                                        <Button color="primary" onClick={this.updatelinhvuc.bind(this)}>Thực hiện lưu</Button>
-                                                                        <Button color="secondary" onClick={this.toggleEditModal.bind(this)}>Hủy bỏ</Button>
-                                                                    </ModalFooter>
-                                                                </Modal>
-                                                                <Button
-                                                                    type="button" className="btn btn-danger btn-sm"
-                                                                    onClick={() => this.handleShowAlert({ id: lv })}>
-                                                                    Delete
-                                                                     </Button>
-                                                                <SweetAlert
-                                                                    show={this.state.showAlert}
-
-                                                                    title="Xóa"
-                                                                    html
-                                                                    text={"Bạn có muốn xóa lĩnh vực " + lv.tenlv + " không?"}
-
-                                                                    showCancelButton
-                                                                    onOutsideClick={() => this.setState({ showAlert: false })}
-                                                                    onEscapeKey={() => this.setState({ showAlert: false })}
-                                                                    onCancel={() => this.setState({ showAlert: false })}
-                                                                    onConfirm={() => this.deletelinhvuc({ idlv: lv.idlv })}
-
-                                                                />
-                                                            </td>
-
-                                                        </tr>
-                                                    )
-                                                })
-                                            }
-
-                                        </tbody>
-                                    </Table>
-                                </CardBody>
-                            </Card>
-                        </Col>
-
-                    </Row>
-                </div>
-            </>
-        );
+        //Quyền
+        const { nv, quyen, chucnang } = this.state;
+        let rules = [];
+        quyen.forEach((e) => {
+            if (e.idvaitro.trim() === nv.idvaitro.trim())
+                rules.push(e.idcn);
+        });
+        const name = "Quản lý lĩnh vực công việc";
+        let cn = [];
+        chucnang.forEach((x) => {
+            if (x.tencn.toLowerCase() === name.toLowerCase())
+                cn.push(x.idcn);
+        });
+      
         return (
             <>
 
@@ -319,9 +244,12 @@ class  DanhMucLinhVuc extends React.Component {
                                     <CardTitle tag="h4">Lĩnh vực</CardTitle>
                                     <CardTitle>
                                         <Row md="12">
-                                            <Col md="4">
-                                                <Button color="primary" onClick={this.toggleNewlinhvucModal.bind(this)}>{(this.state.modalAdd) ? 'Đóng' : 'Thêm lĩnh vực'}</Button>
-                                            </Col>
+                                            {
+                                                (rules.find(x => x == cn)) ?
+                                                    <Col md="4">
+                                                        <Button color="primary" onClick={this.toggleNewlinhvucModal.bind(this)}>{(this.state.modalAdd) ? 'Đóng' : 'Thêm lĩnh vực'}</Button>
+                                                    </Col> : null
+                                            }
                                             <Col md="4">
                                                 <Search
                                                     valueSearch={this.state.valueSearch}
@@ -331,24 +259,26 @@ class  DanhMucLinhVuc extends React.Component {
 
                                         </Row>
                                         <Row md="12">
-
-                                            <Form className="form-inline">
-                                                <Col md="5">
-                                                    <FormGroup>
-                                                        <Input value={this.state.newlinhvuc.tenlv} onChange={(e) => {
-                                                            let { newlinhvuc } = this.state;
-                                                            newlinhvuc.tenlv = e.target.value;
-                                                            this.setState({ newlinhvuc });
-                                                        }}
-                                                            placeholder="Nhập lĩnh vực" />
-                                                    </FormGroup>
-                                                </Col>
-                                                <Col md="7">
-                                                    <Button color="primary" onClick={this.addlinhvuc.bind(this)}>Thực hiện lưu</Button>{' '}
-                                                    <Button color="danger" onClick={this.toggleNewlinhvucModal.bind(this)}>Hủy bỏ</Button>
-                                                </Col>
-                                            </Form>
-
+                                            {(this.state.modalAdd === false) ?
+                                                <div></div>
+                                                :
+                                                <Form className="form-inline">
+                                                    <Col md="5">
+                                                        <FormGroup>
+                                                            <Input value={this.state.newlinhvuc.Tenlv} onChange={(e) => {
+                                                                let { newlinhvuc } = this.state;
+                                                                newlinhvuc.Tenlv = e.target.value;
+                                                                this.setState({ newlinhvuc });
+                                                            }}
+                                                                placeholder="Nhập lĩnh vực" />
+                                                        </FormGroup>
+                                                    </Col>
+                                                    <Col md="7">
+                                                        <Button color="primary" disabled={!(this.state.newlinhvuc.Tenlv.length > 0)} onClick={this.addlinhvuc.bind(this)}>Thực hiện lưu</Button>{' '}
+                                                        <Button color="danger" onClick={this.toggleNewlinhvucModal.bind(this)}>Hủy bỏ</Button>
+                                                    </Col>
+                                                </Form>
+                                            }
                                         </Row>
 
                                     </CardTitle>
@@ -361,8 +291,10 @@ class  DanhMucLinhVuc extends React.Component {
                                             <tr>
                                                 <th>Mã</th>
                                                 <th>Lĩnh vực</th>
-
-                                                <th>Thao tác</th>
+                                                {
+                                                    (rules.find(x => x == cn)) ?
+                                                        <th>Thao tác</th> : null
+                                                }
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -374,52 +306,54 @@ class  DanhMucLinhVuc extends React.Component {
                                                             <td>{lv.idlv}</td>
                                                             <td>{lv.tenlv}</td>
 
+                                                            {
+                                                                (rules.find(x => x == cn)) ?
+                                                                    <td>
 
-                                                            <td>
 
+                                                                        <Button color="success" size="sm" className="mr-2" onClick={this.edit.bind(this, lv.idlv, lv.tenlv)}>Chỉnh sửa</Button>
 
-                                                                <Button color="success" size="sm" className="mr-2" onClick={this.edit.bind(this, lv.idlv, lv.tenlv)}>Edit</Button>
+                                                                        <Modal isOpen={this.state.editModal} toggle={this.toggleEditModal.bind(this)}>
+                                                                            <ModalHeader toggle={this.toggleEditModal.bind(this)}>Chỉnh sửa</ModalHeader>
+                                                                            <ModalBody>
+                                                                                <Form>
 
-                                                                <Modal isOpen={this.state.editModal} toggle={this.toggleEditModal.bind(this)}>
-                                                                    <ModalHeader toggle={this.toggleEditModal.bind(this)}>Edit</ModalHeader>
-                                                                    <ModalBody>
-                                                                        <Form>
-
-                                                                            <FormGroup>
-                                                                                <Label for="tenlv">Lĩnh vực</Label>
-                                                                                <Input id="tenlv" value={this.state.editData.tenlv} onChange={(e) => {
-                                                                                    let { editData } = this.state;
-                                                                                    editData.tenlinhvuc = e.target.value;
-                                                                                    this.setState({ editData });
-                                                                                }} />
-                                                                            </FormGroup>
-                                                                        </Form>
-                                                                    </ModalBody>
-                                                                    <ModalFooter>
-                                                                        <Button color="primary" onClick={this.updatelinhvuc.bind(this)}>Thực hiện lưu</Button>
-                                                                        <Button color="secondary" onClick={this.toggleEditModal.bind(this)}>Hủy bỏ</Button>
-                                                                    </ModalFooter>
-                                                                </Modal>
-                                                                <Button
-                                                                    type="button" className="btn btn-danger btn-sm"
-                                                                    onClick={() => this.handleShowAlert({ id: lv })}>
-                                                                    Delete
+                                                                                    <FormGroup>
+                                                                                        <Label for="tenlv">Lĩnh vực</Label>
+                                                                                        <Input id="tenlv" value={this.state.editData.tenlv} onChange={(e) => {
+                                                                                            let { editData } = this.state;
+                                                                                            editData.tenlv = e.target.value;
+                                                                                            this.setState({ editData });
+                                                                                        }} />
+                                                                                    </FormGroup>
+                                                                                </Form>
+                                                                            </ModalBody>
+                                                                            <ModalFooter>
+                                                                                <Button color="primary" disabled={!(this.state.editData.tenlv.length > 0)} onClick={this.updatelinhvuc.bind(this)}>Thực hiện lưu</Button>
+                                                                                <Button color="secondary" onClick={this.toggleEditModal.bind(this)}>Hủy bỏ</Button>
+                                                                            </ModalFooter>
+                                                                        </Modal>
+                                                                        <Button
+                                                                            type="button" className="btn btn-danger btn-sm"
+                                                                            onClick={() => this.handleShowAlert({ id: lv })}>
+                                                                            Xóa
                                                                      </Button>
-                                                                <SweetAlert
-                                                                    show={this.state.showAlert}
+                                                                        <SweetAlert
+                                                                            show={this.state.showAlert}
 
-                                                                    title="Xóa"
-                                                                    html
-                                                                    text={"Bạn có muốn xóa lĩnh vực " + lv.tenlv + " không?"}
+                                                                            title="Xóa"
+                                                                            html
+                                                                            text={"Bạn có muốn xóa lĩnh vực " + lv.tenlv + " không?"}
 
-                                                                    showCancelButton
-                                                                    onOutsideClick={() => this.setState({ showAlert: false })}
-                                                                    onEscapeKey={() => this.setState({ showAlert: false })}
-                                                                    onCancel={() => this.setState({ showAlert: false })}
-                                                                    onConfirm={() => this.deletelinhvuc({ idlv: lv.idlv })}
+                                                                            showCancelButton
+                                                                            onOutsideClick={() => this.setState({ showAlert: false })}
+                                                                            onEscapeKey={() => this.setState({ showAlert: false })}
+                                                                            onCancel={() => this.setState({ showAlert: false })}
+                                                                            onConfirm={() => this.deletelinhvuc({ idlv: lv.idlv })}
 
-                                                                />
-                                                            </td>
+                                                                        />
+                                                                    </td> : null
+                                                            }
 
                                                         </tr>
                                                     )

@@ -20,6 +20,7 @@ import {
     ModalBody,
     Input, Label, Form, FormGroup
 } from "reactstrap";
+
 class LayVB extends React.Component {
     static displayName = LayVB.name;
     constructor(props) {
@@ -46,7 +47,6 @@ class LayVB extends React.Component {
             detailsData: {
                 idvb: '',
                 tenph: '',
-
                 tenloai: '',
                 sovb: '',
                 trichyeu: '',
@@ -55,14 +55,16 @@ class LayVB extends React.Component {
                 ngaygoi: '',
                 ngaynhan: '',
                 nguoiky: '',
-                hoten: ''
+                hoten: '',
+                idnv:''
 
             },
             xoa: { idvb: 0, sovb: '' },
-            idnv: 14,
-            quyenvb: { idquyenvb: 0, quyen: 0 },
+           
+            quyenvb: { idvb:'', idnv:'', quyen: 0, daxuly:0 },
             ListLoai: [],
             ListPH: [],
+            user: JSON.parse(localStorage.getItem('user')),
             selectedFile: '',
             progress: 0,
             status: '',
@@ -71,28 +73,28 @@ class LayVB extends React.Component {
             valueSearch: ''
 
         };
-
+       
         this.refresh = this.refresh.bind(this);
         this.handleShowAlert = this.handleShowAlert.bind(this);
         this.deleteVB = this.deleteVB.bind(this);
     }
     //load
     componentDidMount() {
-     
-        axios.get('/Vanbans/vbgui/' + this.state.idnv, { id: Number.parseInt(this.state.idnv) })
+        console.log(this.state.user.idnv)
+        axios.get('/Vanbans/vbgui/' + this.state.user.idnv, { id: Number.parseInt(this.state.user.idnv) })
         .then((res) =>
             this.setState({
                 source: res.data,
                 VBGui: res.data
             }));
 
-        axios.get('/Vanbans/vbmoi/' + this.state.idnv, { id: Number.parseInt(this.state.idnv) })
+        axios.get('/Vanbans/vbmoi/' + this.state.user.idnv, { id: Number.parseInt(this.state.user.idnv) })
             .then((res) =>
                 this.setState({
                     source: res.data,
                     VBMoi: res.data
                 }));
-        axios.get('/Vanbans/vbxem/' + this.state.idnv, { id: Number.parseInt(this.state.idnv) })
+        axios.get('/Vanbans/vbxem/' + this.state.user.idnv, { id: Number.parseInt(this.state.user.idnv) })
             .then((res) =>
                 this.setState({
                     source: res.data,
@@ -112,7 +114,7 @@ class LayVB extends React.Component {
                 }));
       
     }
-
+     //upload file
     selectFileHandler = (event) => {
         const fileTypes = ['application/pdf'];
         let file = event.target.files;
@@ -131,7 +133,6 @@ class LayVB extends React.Component {
             }, () => this.uploadHandler());
         }
     };
-    //upload file
     uploadHandler = (event) => {
 
         const formData = new FormData();
@@ -220,26 +221,20 @@ class LayVB extends React.Component {
     }
     //refresh
     refresh = () => {
-        
-        axios.get('/Vanbans/' + this.state.idnv)
-            .then((res) => this.setState({
-                VBGui: res.data,
-                showAlert: false
-            }));
-        axios.get('/Vanbans/vbgui/' + this.state.idnv, { id: Number.parseInt(this.state.idnv) })
+        axios.get('/Vanbans/vbgui/' + this.state.user.idnv, { id: Number.parseInt(this.state.user.idnv) })
             .then((res) =>
                 this.setState({
                     source: res.data,
                     VBGui: res.data
                 }));
 
-        axios.get('/Vanbans/vbmoi/' + this.state.idnv, { id: Number.parseInt(this.state.idnv) })
+        axios.get('/Vanbans/vbmoi/' + this.state.user.idnv, { id: Number.parseInt(this.state.user.idnv) })
             .then((res) =>
                 this.setState({
                     source: res.data,
                     VBMoi: res.data
                 }));
-        axios.get('/Vanbans/vbxem/' + this.state.idnv, { id: Number.parseInt(this.state.idnv) })
+        axios.get('/Vanbans/vbxem/' + this.state.user.idnv, { id: Number.parseInt(this.state.user.idnv) })
             .then((res) =>
                 this.setState({
                     source: res.data,
@@ -271,18 +266,22 @@ class LayVB extends React.Component {
     }
     //details
     toggleDetailModal() {
+        this.refresh();
         this.setState({
 
             detailModal: !this.state.detailModal
 
+
         });
     }
-    details(idvb, tenph, tenloai, sovb, trichyeu, file, ngayky, ngaygoi, ngaynhan, nguoiky, hoten) {
+    details(idvb, tenph, tenloai, sovb, trichyeu, file, ngayky, ngaygoi, ngaynhan, nguoiky, hoten,idnv) {
+        
         this.setState({
-            detailsData: { idvb, tenph, tenloai, sovb, trichyeu, file, ngayky, ngaygoi, ngaynhan, nguoiky, hoten },
+            detailsData: { idvb, tenph, tenloai, sovb, trichyeu, file, ngayky, ngaygoi, ngaynhan, nguoiky, hoten,idnv},
             detailModal: !this.state.detailModal,
-            quyenvb: { quyen: 3, idquyenvb: idvb }
+            quyenvb: { idvb: idvb, idnv: this.state.user.idnv, quyen: 3 }
         });
+      
         
               
            
@@ -291,21 +290,25 @@ class LayVB extends React.Component {
 
 
     render() {
+     
         const { VBGui, VBMoi, VBXem, detailModal } = this.state;
+       
         if (detailModal) {
-            let { quyen, idquyenvb } = this.state.quyenvb;
-            axios.put('/Quyenvanbans/' + this.state.quyenvb.idquyenvb,
-                { idquyenvb, quyen }).then((response) => {
+            let { quyen, idvb, idnv,daxuly } = this.state.quyenvb;
+            axios.put('/quyenvanbans/' + idvb + "/" + idnv,
+                {quyen,daxuly }).then((response) => {
                     this.setState({
-                        quyenvb: { quyen: 0, idquyenvb: 0 }
+                        quyenvb: { quyen: 0, idvb:'', idnv:'', daxuly:0 }
 
-                    })
-
-                })
+                    });
+             
+                }).catch(error => {
+                    console.log(error.response)
+                });
         }
        
         return (
-
+            
             <div className="content">
                 <Col md="4">
                     <Search
@@ -353,7 +356,7 @@ class LayVB extends React.Component {
 
 
                                                         <td width="320px" >
-                                                            <Button className="btn btn-info" onClick={this.details.bind(this, emp.idvb, emp.tenph, emp.tenloai, emp.sovb, emp.trichyeu, emp.file, emp.ngayky, emp.ngaygoi, emp.ngaynhan, emp.nguoiky, emp.hoten)}>Xem chi tiết  </Button>&nbsp;
+                                                            <Button className="btn btn-info" onClick={this.details.bind(this, emp.idvb, emp.tenph, emp.tenloai, emp.sovb, emp.trichyeu, emp.file, emp.ngayky, emp.ngaygoi, emp.ngaynhan, emp.nguoiky, emp.hoten, emp.idnv)}>Xem chi tiết  </Button>&nbsp;
 
                                  <Modal isOpen={this.state.detailModal} toggle={this.toggleDetailModal.bind(this)}>
                                                                 <ModalHeader toggle={this.toggleDetailModal.bind(this)}>Chi tiết văn bản</ModalHeader>
